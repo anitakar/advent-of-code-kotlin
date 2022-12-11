@@ -1,4 +1,4 @@
-import java.util.PriorityQueue
+import java.util.*
 
 fun main() {
     fun part1(input: List<String>): Int {
