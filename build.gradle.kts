@@ -6,6 +6,10 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    implementation("org.json:json:20220924")
+}
+
 tasks {
     sourceSets {
         main {
