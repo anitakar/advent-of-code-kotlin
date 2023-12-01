@@ -1,3 +1,7 @@
+package aoc2022
+
+import println
+import readInput
 import java.util.*
 
 fun main() {

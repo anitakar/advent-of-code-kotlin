@@ -1,3 +1,8 @@
+package aoc2022
+
+import println
+import readInput
+
 fun main() {
 
     data class Position(val x: Int, val y: Int)

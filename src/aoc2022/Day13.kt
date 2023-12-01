@@ -1,4 +1,8 @@
+package aoc2022
+
 import org.json.JSONArray
+import println
+import readInput
 
 fun main() {
 

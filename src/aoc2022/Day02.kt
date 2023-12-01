@@ -1,3 +1,7 @@
+package aoc2022
+
+import readInput
+
 fun main() {
 
     fun points(me: Char): Int {

@@ -1,3 +1,8 @@
+package aoc2022
+
+import println
+import readInput
+
 fun main() {
     fun priority(c: Char): Int {
         if (c in 'A'..'Z') {
