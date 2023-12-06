@@ -4,3 +4,4 @@ build
 src/**/*.txt
 *.iml
 out
+.DS_Store
