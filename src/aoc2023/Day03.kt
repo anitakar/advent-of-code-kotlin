@@ -1,6 +1,7 @@
 package aoc2023
 
 import readInput
+import java.math.BigDecimal
 
 fun main() {
 
@@ -86,6 +87,8 @@ fun main() {
         return number
     }
 
+    val exponentToPower = mapOf(0 to 1, 1 to 10, 2 to 100, 3 to 1000, 4 to 10000, 5 to 100000)
+
     fun readNumberLeft(row: Int, col: Int, array: Array<Array<Char>>): Int {
         var k = 1
         var number = 0
@@ -95,7 +98,7 @@ fun main() {
         }
 
         do {
-            number += array[row][col - k].digitToInt() * Math.pow(10.0, (k - 1).toDouble()).toInt()
+            number += array[row][col - k].digitToInt() * exponentToPower[k - 1]!!
             k += 1
         } while (validIndex(row, col - k, array) && array[row][col - k].isDigit())
         return number
@@ -115,7 +118,7 @@ fun main() {
                 numberOfAdjacent += 1
                 val left = readNumberLeft(row, j - 1, array)
                 val right = readNumberRight(row, j - 2, array)
-                val number = left * Math.pow(10.0, right.toString().length.toDouble()).toInt() + right
+                val number = left * exponentToPower[right.toString().length]!! + right
                 ratio *= number
             } else if (validIndex(row, j, array) && array[row][j].isDigit()) {
                 numberOfAdjacent += 1
@@ -128,21 +131,23 @@ fun main() {
         return Pair(numberOfAdjacent, ratio)
     }
 
-    fun part2(input: List<String>): Int {
-        var sum = 0
+    fun part2(input: List<String>): BigDecimal {
+        var sum = BigDecimal.ZERO
         val array = createArray(input)
         for (i in array.indices) {
-            for (j in 0 until array[0].size) {
+            for (j in array[i].indices) {
                 if (array[i][j] == '*') {
                     var numberOfAdjacent = 0
                     var ratio = 1
                     if (validIndex(i, j - 1, array) && array[i][j - 1].isDigit()) {
                         numberOfAdjacent += 1
-                        ratio *= readNumberLeft(i, j, array)
+                        val numLeft = readNumberLeft(i, j, array)
+                        ratio *= numLeft
                     }
                     if (validIndex(i, j + 1, array) && array[i][j + 1].isDigit()) {
                         numberOfAdjacent += 1
-                        ratio *= readNumberRight(i, j, array)
+                        val numRight = readNumberRight(i, j, array)
+                        ratio *= numRight
                     }
                     val (adjcUp, numUp) = processRow(i - 1, j, array)
                     numberOfAdjacent += adjcUp
@@ -152,7 +157,7 @@ fun main() {
                     ratio *= numDown
 
                     if (numberOfAdjacent == 2) {
-                        sum += ratio
+                        sum = sum.add(ratio.toBigDecimal())
                     }
                 }
             }
@@ -160,7 +165,13 @@ fun main() {
         return sum
     }
 
-    println(part1(readInput("aoc2023/Day03")))
-    println(part2(readInput("aoc2023/Day03_test")))
+//    println(part1(readInput("aoc2023/Day03")))
+//    println(part2(readInput("aoc2023/Day03_test")))
+//    println(part2(readInput("aoc2023/Day03_test1")))
+//    println(part2(readInput("aoc2023/Day03_test2")))
+//    println(part2(readInput("aoc2023/Day03_test3")))
+//    println(part2(readInput("aoc2023/Day03_test4")))
+//    println(part2(readInput("aoc2023/Day03_test5")))
+    println(part2(readInput("aoc2023/Day03_test6")))
     println(part2(readInput("aoc2023/Day03")))
 }
