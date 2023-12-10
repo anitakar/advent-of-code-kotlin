@@ -59,7 +59,7 @@ fun main() {
             return null
         }
 
-        return second.first() .. Math.min(first.last(), second.last())
+        return second.first()..Math.min(first.last(), second.last())
     }
 
     fun part2(lines: List<String>): Long {
@@ -74,6 +74,17 @@ fun main() {
             }
             if (afterHeader) {
                 afterHeader = false
+                if (locationMapping) {
+                    currentlyTranslating.sortWith { a, b -> if (a.first.first - b.first.first > 0) 1 else if (a.first.first == b.first.first) 0 else -1 }
+                    if (currentlyTranslating.first().first.first != 0L) {
+                        currentlyTranslating.add(
+                            0, Pair(
+                                0 until currentlyTranslating[0].first.first(),
+                                0 until currentlyTranslating[0].first.first()
+                            )
+                        )
+                    }
+                }
                 locationMapping = false
             }
 
@@ -101,8 +112,8 @@ fun main() {
                         if (fromBeginning > 0) {
                             toAdd.add(
                                 Pair(
-                                    toTranslate.first.first .. toTranslate.first.first + fromBeginning - 1,
-                                    toTranslate.second.first .. toTranslate.second.first + fromBeginning - 1
+                                    toTranslate.first.first..toTranslate.first.first + fromBeginning - 1,
+                                    toTranslate.second.first..toTranslate.second.first + fromBeginning - 1
                                 )
                             )
                         }
@@ -110,7 +121,7 @@ fun main() {
                             toAdd.add(
                                 Pair(
                                     toTranslate.first.last - (fromEnd - 1)..toTranslate.first.last,
-                                    toTranslate.second.last - (fromEnd - 1) ..toTranslate.second.last
+                                    toTranslate.second.last - (fromEnd - 1)..toTranslate.second.last
                                 )
                             )
                         }
@@ -118,8 +129,8 @@ fun main() {
                         val fromEndSource = to.last - intersection.last()
                         toAdd.add(
                             Pair(
-                                toTranslate.first.first + fromBeginning .. toTranslate.first.last - fromEnd,
-                                from.first + fromBeginningSource .. from.last - fromEndSource
+                                toTranslate.first.first + fromBeginning..toTranslate.first.last - fromEnd,
+                                from.first + fromBeginningSource..from.last - fromEndSource
                             )
                         )
                     }
@@ -135,7 +146,7 @@ fun main() {
             seeds.add(seedRanges[i] until seedRanges[i] + seedRanges[i + 1])
         }
 
-        currentlyTranslating.sortWith { a, b -> (a.first.first - b.first.first).toInt() }
+        currentlyTranslating.sortWith { a, b -> if (a.first.first - b.first.first > 0) 1 else if (a.first.first == b.first.first) 0 else -1 }
 
         for (location in currentlyTranslating) {
             for (seed in seeds) {
@@ -150,14 +161,8 @@ fun main() {
         return -1
     }
 
-    println(part1(readInput("aoc2023/Day05_test")))
-    println(part1(readInput("aoc2023/Day05")))
-//    println((0L .. 10L).intersect(11L .. 11L))
-//    println((11L .. 12L).intersect(0L .. 10L))
-//    println((0L .. 10L).intersect(10L .. 11L))
-//    println((10L .. 11L).intersect(10L .. 10L))
-//    println((0L .. 10L).intersect(5L .. 7L))
-//    println((5L .. 7L).intersect(0L .. 10L))
+//    println(part1(readInput("aoc2023/Day05_test")))
+//    println(part1(readInput("aoc2023/Day05")))
     println(part2(readInput("aoc2023/Day05_test")))
     println(part2(readInput("aoc2023/Day05")))
 }
