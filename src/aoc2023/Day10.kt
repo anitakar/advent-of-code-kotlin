@@ -68,7 +68,10 @@ fun main() {
         return (cycle!!.size + 1) / 2
     }
 
-    fun determineEnclosedCandidate(from: Point, to: Point): Point {
+    // TODO This only works for loops that go clockwise
+    // It does not go for loops going counter clockwise
+    // It also adds all neighbours of counter clockwise loop
+    fun determineEnclosedCandidateClockwiseLoop(from: Point, to: Point): Point {
         if (to.y - from.y == 1) {
             // going east
             return Point(to.x + 1, to.y)
@@ -84,6 +87,22 @@ fun main() {
         }
     }
 
+    fun determineEnclosedCandidateCounterClockwiseLoop(from: Point, to: Point): Point {
+        if (to.y - from.y == 1) {
+            // going east
+            return Point(to.x - 1, to.y)
+        } else if (from.y - to.y == 1) {
+            // going west
+            return Point(to.x + 1, to.y)
+        } else if (from.x - to.x == -1) {
+            // going south
+            return Point(to.x, to.y + 1)
+        } else {
+            // going north
+            return Point(to.x, to.y - 1)
+        }
+    }
+
     fun findNeighbours(point: Point): List<Point> {
         return listOf(
             Point(point.x - 1, point.y),
@@ -93,16 +112,54 @@ fun main() {
         )
     }
 
+    fun outsideLoop(cycle: List<Point>, maze: Array<Array<Char>>): Set<Point> {
+        val outside = mutableSetOf<Point>()
+        for (i in maze[0].indices) {
+            if (!cycle.contains(Point(0, i))) {
+                outside.add(Point(0, i))
+            }
+            if (!cycle.contains(Point(maze.size - 1, i))) {
+                outside.add(Point(maze.size - 1, i))
+            }
+        }
+        for (i in maze.indices) {
+            if (!cycle.contains(Point(i, 0))) {
+                outside.add(Point(i, 0))
+            }
+            if (!cycle.contains(Point(i, maze[0].size - 1))) {
+                outside.add(Point(i, maze[0].size - 1))
+            }
+        }
+        val toAdd = mutableListOf<Point>()
+        do {
+            outside.addAll(toAdd)
+            toAdd.clear()
+            for (point in outside) {
+                for (neighbour in findNeighbours(point)) {
+                    if (neighbour.isValid(maze) && !cycle.contains(neighbour) && !outside.contains(neighbour)) {
+                        toAdd.add(neighbour)
+                    }
+                }
+            }
+        } while (toAdd.isNotEmpty())
+        return outside
+    }
+
     fun markEnclosed(cycle: List<Point>, maze: Array<Array<Char>>): Set<Point> {
         val enclosed = mutableSetOf<Point>()
         for (i in 0..cycle.size - 2) {
             val from = cycle[i]
             val to = cycle[i + 1]
-            val enclosedCandidate = determineEnclosedCandidate(from, to)
+            val enclosedCandidate = determineEnclosedCandidateClockwiseLoop(from, to)
             if (enclosedCandidate.isValid(maze) && !cycle.contains(enclosedCandidate)) {
                 enclosed.add(enclosedCandidate)
             }
+            val enclosedCandidate2 = determineEnclosedCandidateCounterClockwiseLoop(from, to)
+            if (enclosedCandidate2.isValid(maze) && !cycle.contains(enclosedCandidate2)) {
+                enclosed.add(enclosedCandidate2)
+            }
         }
+        enclosed.removeAll(outsideLoop(cycle, maze))
         val toAdd = mutableListOf<Point>()
         do {
             enclosed.addAll(toAdd)
@@ -137,5 +194,7 @@ fun main() {
     println(part1(readInput("aoc2023/Day10")))
     println(part2(readInput("aoc2023/Day10_test5")))
     println(part2(readInput("aoc2023/Day10_test6")))
+    println(part2(readInput("aoc2023/Day10_test7")))
+    println(part2(readInput("aoc2023/Day10_test8")))
     println(part2(readInput("aoc2023/Day10")))
 }
