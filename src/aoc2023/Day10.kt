@@ -68,41 +68,6 @@ fun main() {
         return (cycle!!.size + 1) / 2
     }
 
-    // TODO This only works for loops that go clockwise
-    // It does not go for loops going counter clockwise
-    // It also adds all neighbours of counter clockwise loop
-    fun determineEnclosedCandidateClockwiseLoop(from: Point, to: Point): Point {
-        if (to.y - from.y == 1) {
-            // going east
-            return Point(to.x + 1, to.y)
-        } else if (from.y - to.y == 1) {
-            // going west
-            return Point(to.x - 1, to.y)
-        } else if (from.x - to.x == -1) {
-            // going south
-            return Point(to.x, to.y - 1)
-        } else {
-            // going north
-            return Point(to.x, to.y + 1)
-        }
-    }
-
-    fun determineEnclosedCandidateCounterClockwiseLoop(from: Point, to: Point): Point {
-        if (to.y - from.y == 1) {
-            // going east
-            return Point(to.x - 1, to.y)
-        } else if (from.y - to.y == 1) {
-            // going west
-            return Point(to.x + 1, to.y)
-        } else if (from.x - to.x == -1) {
-            // going south
-            return Point(to.x, to.y + 1)
-        } else {
-            // going north
-            return Point(to.x, to.y - 1)
-        }
-    }
-
     fun findNeighbours(point: Point): List<Point> {
         return listOf(
             Point(point.x - 1, point.y),
@@ -112,7 +77,7 @@ fun main() {
         )
     }
 
-    fun outsideLoop(cycle: List<Point>, maze: Array<Array<Char>>): Set<Point> {
+    fun outsideLoop(cycle: List<Point>, maze: Array<Array<Char>>): MutableSet<Point> {
         val outside = mutableSetOf<Point>()
         for (i in maze[0].indices) {
             if (!cycle.contains(Point(0, i))) {
@@ -145,34 +110,47 @@ fun main() {
         return outside
     }
 
-    fun markEnclosed(cycle: List<Point>, maze: Array<Array<Char>>): Set<Point> {
-        val enclosed = mutableSetOf<Point>()
-        for (i in 0..cycle.size - 2) {
-            val from = cycle[i]
-            val to = cycle[i + 1]
-            val enclosedCandidate = determineEnclosedCandidateClockwiseLoop(from, to)
-            if (enclosedCandidate.isValid(maze) && !cycle.contains(enclosedCandidate)) {
-                enclosed.add(enclosedCandidate)
-            }
-            val enclosedCandidate2 = determineEnclosedCandidateCounterClockwiseLoop(from, to)
-            if (enclosedCandidate2.isValid(maze) && !cycle.contains(enclosedCandidate2)) {
-                enclosed.add(enclosedCandidate2)
-            }
-        }
-        enclosed.removeAll(outsideLoop(cycle, maze))
-        val toAdd = mutableListOf<Point>()
-        do {
-            enclosed.addAll(toAdd)
-            toAdd.clear()
-            for (point in enclosed) {
-                for (neighbour in findNeighbours(point)) {
-                    if (neighbour.isValid(maze) && !cycle.contains(neighbour) && !enclosed.contains(neighbour)) {
-                        toAdd.add(neighbour)
-                    }
+    fun findInside(cycle: List<Point>, maze: Array<Array<Char>>): MutableSet<Point> {
+        val insideHorizontally = mutableSetOf<Point>()
+        for (i in maze.indices) {
+            var linesMet = 0
+            for (j in maze[i].indices) {
+                if (cycle.contains(Point(i, j))) {
+                    val prev = Point(i, j - 1)
+                    val next = Point(i, j + 1)
+                    val cycleIndex = cycle.indexOf(Point(i, j))
+                    val neighsInCycle = mutableSetOf<Point>()
+                    neighsInCycle.add(cycle[if (cycleIndex == 0) (cycle.size - 1) else (cycleIndex - 1)])
+                    neighsInCycle.add(cycle[(cycleIndex + 1) % cycle.size])
+
+
+                    if (!neighsInCycle.containsAll(setOf(prev, next)))
+                        linesMet += 1
+                } else if (linesMet % 2 == 1) {
+                    insideHorizontally.add(Point(i, j))
                 }
             }
-        } while (toAdd.isNotEmpty())
-        return enclosed
+        }
+        val insideVertically = mutableSetOf<Point>()
+        for (j in maze[0].indices) {
+            var linesMet = 0
+            for (i in maze.indices) {
+                if (cycle.contains(Point(i, j))) {
+                    val prev = Point(i - 1, j)
+                    val next = Point(i + 1, j)
+                    val cycleIndex = cycle.indexOf(Point(i, j))
+                    val neighsInCycle = mutableSetOf<Point>()
+                    neighsInCycle.add(cycle[if (cycleIndex == 0) (cycle.size - 1) else (cycleIndex - 1)])
+                    neighsInCycle.add(cycle[(cycleIndex + 1) % cycle.size])
+
+                    if (!neighsInCycle.containsAll(setOf(prev, next)))
+                        linesMet += 1
+                } else if (linesMet % 2 == 1) {
+                    insideVertically.add(Point(i, j))
+                }
+            }
+        }
+        return insideHorizontally.intersect(insideVertically).toMutableSet()
     }
 
     fun part2(lines: List<String>): Int {
@@ -183,8 +161,8 @@ fun main() {
         val startX = maze.indexOfFirst { it.contains('S') }
         val startY = maze[startX].indexOfFirst { it == 'S' }
         val cycle = findCycle(Point(startX, startY), maze)
-        val enclosed = markEnclosed(cycle!!, maze)
-        return enclosed.size
+        val inside = findInside(cycle!!, maze)
+        return inside.size
     }
 
     println(part1(readInput("aoc2023/Day10_test")))
