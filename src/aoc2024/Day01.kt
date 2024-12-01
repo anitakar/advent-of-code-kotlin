@@ -28,26 +28,12 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        var (list1, list2) = parseInput(input)
+        val (list1, list2) = parseInput(input)
         var total = 0
-        list1 = list1.sorted()
-        list2 = list2.sorted()
-        var i = 0
-        var j = 0
-        while (i < list2.size) {
-            val number = list2[i]
-            var multiplier = 0
-            while (i < list2.size && list2[i] == number) {
-                i++
-                multiplier++
-            }
-            var occurences = 0
-            while (j < list1.size && list1[j] < number) j++
-            while (j < list1.size && list1[j] == number) {
-                j++
-                occurences++
-            }
-            total += number * occurences * multiplier
+        val list1Lookup = list1.groupBy { it }.mapValues { it.value.size }
+        for (number in list2) {
+            val occurrences = list1Lookup[number] ?: 0
+            total += number * occurrences
         }
         return total
     }
