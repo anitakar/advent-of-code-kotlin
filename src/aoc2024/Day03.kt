@@ -16,12 +16,12 @@ fun main() {
         return result
     }
 
-    fun lineEnabled(input: String): Long {
+    fun lineEnabled(input: String, enabled: Boolean): Pair<Long, Boolean> {
         val regex = """(mul\((\d+),(\d+)\)|don't\(\)|do\(\))""".toRegex()
         val muls = regex.findAll(input).iterator()
-        var result = 0L
 
-        var enabled = true
+        var result = 0L
+        var enabled = enabled
         while (muls.hasNext()) {
             val mul = muls.next()
             if (mul.value == "don't()") {
@@ -37,7 +37,7 @@ fun main() {
                 result += mul.groupValues[2].toInt() * mul.groupValues[3].toInt()
             }
         }
-        return result
+        return Pair(result, enabled)
     }
 
     fun part1(input: List<String>): Long {
@@ -49,9 +49,12 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
+        var enabled = true
         var result = 0L
         for (line in input) {
-            result += lineEnabled(line)
+            val (lineResult, lineEnabled) = lineEnabled(line, enabled)
+            enabled = lineEnabled
+            result += lineResult
         }
         return result
     }
