@@ -16,36 +16,25 @@ fun main() {
         return result
     }
 
-    fun isEnabled(startLocation: Int): Boolean {
-        return true
-    }
-
     fun lineEnabled(input: String): Long {
-        val regex = """mul\((\d+),(\d+)\)""".toRegex()
+        val regex = """(mul\((\d+),(\d+)\)|don't\(\)|do\(\))""".toRegex()
         val muls = regex.findAll(input).iterator()
         var result = 0L
 
-        var disabledRegex = """don't\(\)""".toRegex()
-        val disabled = disabledRegex.findAll(input).iterator()
-        val disabledRanges = mutableListOf<Int>()
-        while (disabled.hasNext()) {
-            val startDisabled = disabled.next().range.last
-            disabledRanges.add(startDisabled)
-        }
-
-        var enabledRegex = """do\(\)""".toRegex()
-        val enabled = enabledRegex.findAll(input).iterator()
-        val enabledRanges = mutableListOf<Int>()
-        enabledRanges.add(0)
-        while (enabled.hasNext()) {
-            val startEnabled = enabled.next().range.last
-            enabledRanges.add(startEnabled)
-        }
-
+        var enabled = true
         while (muls.hasNext()) {
             val mul = muls.next()
-            if (isEnabled(mul.range.start)) {
-                result += mul.groupValues[1].toInt() * mul.groupValues[2].toInt()
+            if (mul.value == "don't()") {
+                enabled = false
+                continue
+            }
+            if (mul.value == "do()") {
+                enabled = true
+                continue
+            }
+
+            if (enabled) {
+                result += mul.groupValues[2].toInt() * mul.groupValues[3].toInt()
             }
         }
         return result
@@ -62,13 +51,13 @@ fun main() {
     fun part2(input: List<String>): Long {
         var result = 0L
         for (line in input) {
-            result += line(line)
+            result += lineEnabled(line)
         }
         return result
     }
 
     println(part1(readInput("aoc2024/Day03_test")))
     println(part1(readInput("aoc2024/Day03")))
-//    println(part2(readInput("aoc2024/Day03_test")))
-//    println(part2(readInput("aoc2024/Day03")))
+    println(part2(readInput("aoc2024/Day03_test2")))
+    println(part2(readInput("aoc2024/Day03")))
 }
