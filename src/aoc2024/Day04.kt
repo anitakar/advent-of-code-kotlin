@@ -76,9 +76,31 @@ fun main() {
         return result
     }
 
+    fun isXMas(input: List<String>, row: Int, column: Int): Boolean {
+        if (input[row][column] != 'A') return false
+        if (! ((input[row-1][column-1] == 'M' && input[row+1][column+1] == 'S') || (input[row-1][column-1] == 'S' && input[row+1][column+1] == 'M')) )
+            return false
+        if (! ((input[row-1][column+1] == 'M' && input[row+1][column-1] == 'S') || (input[row-1][column+1] == 'S' && input[row+1][column-1] == 'M')) )
+            return false
+
+        return true
+    }
+
+    fun part2(input: List<String>): Long {
+        var result = 0L
+        for (row in 1 until  input.size - 1) {
+            for (column in 1 until input[0].length - 1) {
+                if (isXMas(input, row, column)) {
+                    result++
+                }
+            }
+        }
+        return result
+    }
+
     println(part1(readInput("aoc2024/Day04_test2")))
     println(part1(readInput("aoc2024/Day04_test")))
     println(part1(readInput("aoc2024/Day04")))
-//    println(part2(readInput("aoc2024/Day04_test2")))
-//    println(part2(readInput("aoc2024/Day04")))
+    println(part2(readInput("aoc2024/Day04_test")))
+    println(part2(readInput("aoc2024/Day04")))
 }
