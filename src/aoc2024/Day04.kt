@@ -19,10 +19,12 @@ fun main() {
 
     fun part1(input: List<String>): Long {
         var result = 0L
+        // all rows == 5
         for (line in input) {
             result += findAll(line)
             result += findAll(line.reversed())
         }
+        // all columns == 3 (8)
         for (column in 0 until input[0].length) {
             var toCheck = ""
             for (line in input) {
@@ -31,38 +33,42 @@ fun main() {
             result += findAll(toCheck)
             result += findAll(toCheck.reversed())
         }
+        // diagonal down left for first column == 3 (11)
         var column = 0
         for (row in 0 until input.size) {
             var toCheck = ""
-            for (i in 0 until min(input[0].length - column, input.size - row)) {
+            for (i in 0 until min(input.size - row, input[0].length)) {
                 toCheck += input[row + i][column + i]
             }
             result += findAll(toCheck)
             result += findAll(toCheck.reversed())
         }
+        // diagonal down left for first row == 2 (13)
         var row = 0
         for (column in 1 until input[0].length) {
             var toCheck = ""
-            for (i in 0 until min(input[0].length - column, input.size - row)) {
+            for (i in 0 until min(input.size, input[0].length - column)) {
                 toCheck += input[row + i][column + i]
             }
             result += findAll(toCheck)
             result += findAll(toCheck.reversed())
         }
+        // diagonal down right for last column == 4 (17)
         column = input[0].length - 1
-        for (row in input.size - 1 downTo 1) {
+        for (row in 0 until input.size) {
             var toCheck = ""
-            for (i in 0..min(column, row)) {
-                toCheck += input[row - i][column - i]
+            for (i in 0 until min(input.size - row, input[0].length)) {
+                toCheck += input[row + i][column - i]
             }
             result += findAll(toCheck)
             result += findAll(toCheck.reversed())
         }
-        row = input.size - 1
-        for (column in input[0].length - 2 downTo 0) {
+        // diagonal down right for first row == 1 (18)
+        row = 0
+        for (column in 0 until input[0].length - 1) {
             var toCheck = ""
-            for (i in 0..min(column, row)) {
-                toCheck += input[row - i][column - i]
+            for (i in 0 until min(input.size, column + 1)) {
+                toCheck += input[row + i][column - i]
             }
             result += findAll(toCheck)
             result += findAll(toCheck.reversed())
@@ -73,6 +79,6 @@ fun main() {
     println(part1(readInput("aoc2024/Day04_test2")))
     println(part1(readInput("aoc2024/Day04_test")))
     println(part1(readInput("aoc2024/Day04")))
-//    println(part2(readInput("aoc2024/Day03_test2")))
-//    println(part2(readInput("aoc2024/Day03")))
+//    println(part2(readInput("aoc2024/Day04_test2")))
+//    println(part2(readInput("aoc2024/Day04")))
 }
