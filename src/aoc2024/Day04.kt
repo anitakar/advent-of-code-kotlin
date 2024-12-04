@@ -50,7 +50,7 @@ fun main() {
             result += findAll(toCheck.reversed())
         }
         column = input[0].length - 1
-        for (row in 0 until input.size) {
+        for (row in input.size - 1 downTo 1) {
             var toCheck = ""
             for (i in 0..min(column, row)) {
                 toCheck += input[row - i][column - i]
@@ -59,7 +59,7 @@ fun main() {
             result += findAll(toCheck.reversed())
         }
         row = input.size - 1
-        for (column in 0 until input[0].length - 1) {
+        for (column in input[0].length - 2 downTo 0) {
             var toCheck = ""
             for (i in 0..min(column, row)) {
                 toCheck += input[row - i][column - i]
