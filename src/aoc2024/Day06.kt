@@ -1,17 +1,23 @@
 package aoc2024
 
 import readInput
+import kotlin.math.max
 
 
 fun main() {
 
     data class Position(val x: Int, val y: Int)
+    data class PositionAndDirection(val x: Int, val y: Int, val dir: Char)
 
     class Guard(var x: Int, var y: Int, private val map: List<String>) {
         private var dir: Char = 'U'
 
         fun position(): Position {
             return Position(x, y)
+        }
+
+        fun positionAndDirection(): PositionAndDirection {
+            return PositionAndDirection(x, y, dir)
         }
 
         fun move(): Boolean {
@@ -105,13 +111,44 @@ fun main() {
         return visited.size
     }
 
-    fun part2(input: List<String>): Long {
-        var result = 0L
-        return result
+    fun checkIfLoop(guard: Guard, map: List<String>): Boolean {
+        val visited = mutableSetOf<PositionAndDirection>()
+        visited.add(guard.positionAndDirection())
+        while (guard.move()) {
+            if (visited.contains(guard.positionAndDirection())) {
+                return true
+            }
+            visited.add(guard.positionAndDirection())
+        }
+        return false
+    }
+
+    fun part2(input: List<String>): Int {
+        var totalWithLoop = 0
+        val guard = findGuard(input)!!
+        val initialGuardPosition = guard.position()
+        for (i in input.indices) {
+            for (j in input[i].indices) {
+                if (i == initialGuardPosition.x && j == initialGuardPosition.y) {
+                    continue
+                }
+                if (input[i][j] == '#') {
+                    continue
+                }
+
+                val modifiedMap = mutableListOf<String>()
+                modifiedMap.addAll(input)
+                modifiedMap[i] = input[i].substring(0, max(0,j)) + "#" + input[i].substring(j + 1, input[i].length)
+                if (checkIfLoop(Guard(initialGuardPosition.x, initialGuardPosition.y, modifiedMap), modifiedMap)) {
+                    totalWithLoop++
+                }
+            }
+        }
+        return totalWithLoop
     }
 
     println(part1(readInput("aoc2024/Day06_test")))
     println(part1(readInput("aoc2024/Day06")))
-//    println(part2(readInput("aoc2024/Day06_test")))
-//    println(part2(readInput("aoc2024/Day06")))
+    println(part2(readInput("aoc2024/Day06_test")))
+    println(part2(readInput("aoc2024/Day06")))
 }
