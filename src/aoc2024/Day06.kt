@@ -101,17 +101,22 @@ fun main() {
         return null
     }
 
-    fun part1(input: List<String>): Int {
+    fun findVisited(guard: Guard): Set<Position> {
         val visited = mutableSetOf<Position>()
-        val guard = findGuard(input)!!
         visited.add(guard.position())
         while (guard.move()) {
             visited.add(guard.position())
         }
+        return visited
+    }
+
+    fun part1(input: List<String>): Int {
+        val guard = findGuard(input)!!
+        val visited = findVisited(guard)
         return visited.size
     }
 
-    fun checkIfLoop(guard: Guard, map: List<String>): Boolean {
+    fun checkIfLoop(guard: Guard): Boolean {
         val visited = mutableSetOf<PositionAndDirection>()
         visited.add(guard.positionAndDirection())
         while (guard.move()) {
@@ -127,21 +132,22 @@ fun main() {
         var totalWithLoop = 0
         val guard = findGuard(input)!!
         val initialGuardPosition = guard.position()
-        for (i in input.indices) {
-            for (j in input[i].indices) {
-                if (i == initialGuardPosition.x && j == initialGuardPosition.y) {
-                    continue
-                }
-                if (input[i][j] == '#') {
-                    continue
-                }
+        val path = findVisited(guard)
+        for (position in path) {
+            if (position.x == initialGuardPosition.x && position.y == initialGuardPosition.y) {
+                continue
+            }
+            if (input[position.x][position.y] == '#') {
+                continue
+            }
 
-                val modifiedMap = mutableListOf<String>()
-                modifiedMap.addAll(input)
-                modifiedMap[i] = input[i].substring(0, max(0,j)) + "#" + input[i].substring(j + 1, input[i].length)
-                if (checkIfLoop(Guard(initialGuardPosition.x, initialGuardPosition.y, modifiedMap), modifiedMap)) {
-                    totalWithLoop++
-                }
+            val modifiedMap = mutableListOf<String>()
+            modifiedMap.addAll(input)
+            modifiedMap[position.x] =
+                input[position.x].substring(0, max(0, position.y)) + "#" +
+                        input[position.x].substring(position.y + 1, input[position.x].length)
+            if (checkIfLoop(Guard(initialGuardPosition.x, initialGuardPosition.y, modifiedMap))) {
+                totalWithLoop++
             }
         }
         return totalWithLoop
@@ -150,5 +156,7 @@ fun main() {
     println(part1(readInput("aoc2024/Day06_test")))
     println(part1(readInput("aoc2024/Day06")))
     println(part2(readInput("aoc2024/Day06_test")))
+    val before = System.currentTimeMillis()
     println(part2(readInput("aoc2024/Day06")))
+    println("time: ${System.currentTimeMillis() - before}")
 }
