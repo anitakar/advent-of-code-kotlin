@@ -94,11 +94,19 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        return 0L
+        var total = 0L
+        val positions = findAllTrailHeads(input)
+        for (position in positions) {
+            val trails = findAllTrails(position, input)
+            val longTrails = trails.filter { it.path.size == 10 }
+            val uniqueTrailsCount = longTrails.size
+            total += uniqueTrailsCount
+        }
+        return total
     }
 
     println(part1(readInput("aoc2024/Day10_test")))
     println(part1(readInput("aoc2024/Day10")))
-//    println(part2(readInput("aoc2024/Day10_test")))
-//    println(part2(readInput("aoc2024/Day10")))
+    println(part2(readInput("aoc2024/Day10_test")))
+    println(part2(readInput("aoc2024/Day10")))
 }
