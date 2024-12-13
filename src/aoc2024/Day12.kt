@@ -133,6 +133,7 @@ fun main() {
             right = map.right(right)
         }
 
+        line.sortBy { -it.y }
         return line
     }
 
@@ -152,6 +153,7 @@ fun main() {
             down = map.down(down)
         }
 
+        line.sortBy { -it.x }
         return line
     }
 
@@ -168,23 +170,29 @@ fun main() {
                 }
             }
 
-            var horizontalLines = mutableListOf<MutableList<Position>>()
-            var verticalLines = mutableListOf<MutableList<Position>>()
+            val horizontalLines = mutableListOf<MutableList<Position>>()
+            val verticalLines = mutableListOf<MutableList<Position>>()
+            val horizontalPointsVisited = mutableSetOf<Position>()
+            val verticalPointsVisited = mutableSetOf<Position>()
             for (position in perimeter) {
-                if (formsHorizontalLine(position, map)) {
+                if (!horizontalPointsVisited.contains(position) && formsHorizontalLine(position, map)) {
                     horizontalLines.add(trackHorizontalLine(position, perimeter, map))
+                    horizontalPointsVisited.addAll(horizontalLines.last())
                 }
-                if (formsVerticalLine(position, map)) {
+                if (!verticalPointsVisited.contains(position) && formsVerticalLine(position, map)) {
                     verticalLines.add(trackVerticalLine(position, perimeter, map))
+                    verticalPointsVisited.addAll(verticalLines.last())
                 }
             }
+
+            cost += area.positions.size * (horizontalLines.size + verticalLines.size)
         }
 
         return cost
     }
 
-    println(part1(readInput("aoc2024/Day12_test")))
-    println(part1(readInput("aoc2024/Day12")))
-//    println(part2(readInput("aoc2024/Day12_test")))
+//    println(part1(readInput("aoc2024/Day12_test")))
+//    println(part1(readInput("aoc2024/Day12")))
+    println(part2(readInput("aoc2024/Day12_test")))
 //    println(part2(readInput("aoc2024/Day12")))
 }
