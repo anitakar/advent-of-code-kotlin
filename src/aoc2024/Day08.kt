@@ -1,23 +1,11 @@
 package aoc2024
 
 import readInput
-import kotlin.math.abs
-import kotlin.math.max
 
 
 fun main() {
-
-    data class Position(val x: Int, val y: Int)
-
-    fun withinBounds(x: Int, y: Int, input: List<String>): Boolean {
-        if (x < 0) return false
-        if (x >= input.size) return false
-        if (y < 0) return false
-        if (y >= input[0].length) return false
-        return true
-    }
-
     fun part1(input: List<String>): Int {
+        val map = Grid(input)
         val nodesLocations = mutableMapOf<Char, MutableList<Position>>()
         for (i in input.indices) {
             for (j in input[i].indices) {
@@ -41,14 +29,14 @@ fun main() {
                         first.x - (second.x - first.x),
                         first.y - (second.y - first.y)
                     )
-                    if (withinBounds(firstAntinode.x, firstAntinode.y, input))
+                    if (map.isValid(Position(firstAntinode.x, firstAntinode.y)))
                         uniqueAntinodes.add(firstAntinode)
 
                     val secondAntinode = Position(
                         second.x + (second.x - first.x),
                         second.y + (second.y - first.y)
                     )
-                    if (withinBounds(secondAntinode.x, secondAntinode.y, input))
+                    if (map.isValid(Position(secondAntinode.x, secondAntinode.y)))
                         uniqueAntinodes.add(secondAntinode)
                 }
             }
@@ -57,6 +45,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
+        val map = Grid(input)
         val nodesLocations = mutableMapOf<Char, MutableList<Position>>()
         for (i in input.indices) {
             for (j in input[i].indices) {
@@ -81,7 +70,7 @@ fun main() {
                         first.x - (second.x - first.x),
                         first.y - (second.y - first.y)
                     )
-                    while (withinBounds(firstAntinode.x, firstAntinode.y, input)) {
+                    while (map.isValid(Position(firstAntinode.x, firstAntinode.y))) {
                         uniqueAntinodes.add(firstAntinode)
                         firstAntinode = Position(
                             firstAntinode.x - (second.x - first.x),
@@ -93,7 +82,7 @@ fun main() {
                         second.x + (second.x - first.x),
                         second.y + (second.y - first.y)
                     )
-                    while (withinBounds(secondAntinode.x, secondAntinode.y, input)) {
+                    while (map.isValid(Position(secondAntinode.x, secondAntinode.y))) {
                         uniqueAntinodes.add(secondAntinode)
                         secondAntinode = Position(
                             secondAntinode.x + (second.x - first.x),

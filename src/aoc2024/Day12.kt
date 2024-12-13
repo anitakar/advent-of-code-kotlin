@@ -4,49 +4,11 @@ import readInput
 
 
 fun main() {
-    data class Position(val x: Int, val y:Int)
-
-    fun isValid(position: Position, map: List<String>): Boolean {
-        if (position.x < 0) return false
-        if (position.x >= map.size) return false
-        if (position.y < 0) return false
-        if (position.y >= map[position.x].length) return false
-        return true
-    }
-
-    fun getNeighbours(position: Position, map: List<String>): List<Position> {
-        val neighbours = mutableListOf<Position>()
-
-        val up = Position(position.x - 1, position.y)
-        if (isValid(up, map)) {
-            neighbours.add(up)
-        }
-
-        val down = Position(position.x + 1, position.y)
-        if (isValid(down, map)) {
-            neighbours.add(down)
-        }
-
-        val left = Position(position.x, position.y - 1)
-        if (isValid(left, map)) {
-            neighbours.add(left)
-        }
-
-        val right = Position(position.x, position.y + 1)
-        if (isValid(right, map)) {
-            neighbours.add(right)
-        }
-
-        return neighbours
-    }
-
-    fun get(position: Position, map: List<String>): Char {
-        return map[position.x][position.y]
-    }
 
     data class Area(val positions: MutableSet<Position>, var perimeter: Int)
 
-    fun part1(input: List<String>): Int {
+    fun findAreas(input: List<String>): MutableList<Area> {
+        val map = Grid(input)
 
         val areas = mutableListOf<Area>()
         val visited = mutableSetOf<Position>()
@@ -72,10 +34,10 @@ fun main() {
                 next.remove(cur)
                 visited.add(cur)
                 currentArea.positions.add(cur)
-                val neighs = getNeighbours(cur, input)
+                val neighs = map.getNeighbours(cur)
                 currentArea.perimeter += (4 - neighs.size)
                 for (neigh in neighs) {
-                    if (get(cur, input) == get(neigh, input)) {
+                    if (map.get(cur) == map.get(neigh)) {
                         if (!visited.contains(neigh)) {
                             next.add(neigh)
                         }
@@ -88,6 +50,11 @@ fun main() {
                 }
             }
         }
+        return areas
+    }
+
+    fun part1(input: List<String>): Int {
+        val areas = findAreas(input)
 
         var cost = 0
         for (area in areas) {
@@ -96,8 +63,124 @@ fun main() {
         return cost
     }
 
+    fun onPerimeter(position: Position, map: Grid): Boolean {
+        val value = map.get(position)
+        val neighs = map.getNeighbours(position)
+
+        if (neighs.size < 4) {
+            return true
+        }
+
+        for (neigh in neighs) {
+            val neighValue = map.get(neigh)
+            if (value != neighValue) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun formsHorizontalLine(position: Position, map: Grid): Boolean {
+        val up = map.up(position)
+        if (up == null) {
+            return true
+        }
+        if (map.get(up) == map.get(position)) {
+            return true
+        }
+        val down = map.down(position)
+        if (down == null) {
+            return true
+        }
+        if (map.get(down) == map.get(position)) {
+            return true
+        }
+        return false
+    }
+
+    fun formsVerticalLine(position: Position, map: Grid): Boolean {
+        val left = map.left(position)
+        if (left == null) {
+            return true
+        }
+        if (map.get(left) == map.get(position)) {
+            return true
+        }
+        val right = map.right(position)
+        if (right == null) {
+            return true
+        }
+        if (map.get(right) == map.get(position)) {
+            return true
+        }
+        return false
+    }
+
+    fun trackHorizontalLine(position: Position, perimeter: MutableList<Position>, map: Grid): MutableList<Position> {
+        val line = mutableListOf<Position>()
+        line.add(position)
+
+        var left = map.left(position)
+        while (left != null && perimeter.contains(left)) {
+            line.add(left)
+            left = map.left(left)
+        }
+
+        var right = map.right(position)
+        while (right != null && perimeter.contains(right)) {
+            line.add(right)
+            right = map.right(right)
+        }
+
+        return line
+    }
+
+    fun trackVerticalLine(position: Position, perimeter: MutableList<Position>, map: Grid): MutableList<Position> {
+        val line = mutableListOf<Position>()
+        line.add(position)
+
+        var up = map.up(position)
+        while (up != null && perimeter.contains(up)) {
+            line.add(up)
+            up = map.up(up)
+        }
+
+        var down = map.down(position)
+        while (down != null && perimeter.contains(down)) {
+            line.add(down)
+            down = map.down(down)
+        }
+
+        return line
+    }
+
     fun part2(input: List<String>): Long {
-        return 0
+        val map = Grid(input)
+        val areas = findAreas(input)
+
+        var cost = 0L
+        for (area in areas) {
+            val perimeter = mutableListOf<Position>()
+            for (position in area.positions) {
+                if (onPerimeter(position, map)) {
+                    perimeter.add(position)
+                }
+            }
+
+            var horizontalLines = mutableListOf<MutableList<Position>>()
+            var verticalLines = mutableListOf<MutableList<Position>>()
+            for (position in perimeter) {
+                if (formsHorizontalLine(position, map)) {
+                    horizontalLines.add(trackHorizontalLine(position, perimeter, map))
+                }
+                if (formsVerticalLine(position, map)) {
+                    verticalLines.add(trackVerticalLine(position, perimeter, map))
+                }
+            }
+        }
+
+        return cost
     }
 
     println(part1(readInput("aoc2024/Day12_test")))

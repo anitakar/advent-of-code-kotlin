@@ -1,13 +1,10 @@
 package aoc2024
 
 import readInput
-import kotlin.math.abs
-import kotlin.math.max
 
 
 fun main() {
 
-    data class Position(val x: Int, val y: Int)
     data class Trail(val path: MutableList<Position>)
 
     fun findAllTrailHeads(map: List<String>): List<Position> {
@@ -22,51 +19,18 @@ fun main() {
         return positions
     }
 
-    fun isValid(position: Position, map: List<String>): Boolean {
-        if (position.x < 0) return false
-        if (position.x >= map.size) return false
-        if (position.y < 0) return false
-        if (position.y >= map[position.x].length) return false
-        return true
-    }
-
-    fun getNeighbours(position: Position, map: List<String>): List<Position> {
-        val neighbours = mutableListOf<Position>()
-
-        val up = Position(position.x - 1, position.y)
-        if (isValid(up, map)) {
-            neighbours.add(up)
-        }
-
-        val down = Position(position.x + 1, position.y)
-        if (isValid(down, map)) {
-            neighbours.add(down)
-        }
-
-        val left = Position(position.x, position.y - 1)
-        if (isValid(left, map)) {
-            neighbours.add(left)
-        }
-
-        val right = Position(position.x, position.y + 1)
-        if (isValid(right, map)) {
-            neighbours.add(right)
-        }
-
-        return neighbours
-    }
-
-    fun findAllTrails(position: Position, map: List<String>): MutableList<Trail> {
+    fun findAllTrails(position: Position, input: List<String>): MutableList<Trail> {
+        val map = Grid(input)
         val result = mutableListOf<Trail>()
         val trails = mutableListOf<Trail>()
         trails.add(Trail(mutableListOf(position)))
         while (trails.isNotEmpty()) {
             val trail = trails.removeAt(0)
             val lastElem = trail.path[trail.path.size - 1]
-            val neighbours = getNeighbours(lastElem, map)
+            val neighbours = map.getNeighbours(lastElem)
             var added = false
             for (neighbour in neighbours) {
-                if (map[neighbour.x][neighbour.y].toString().toInt() - map[lastElem.x][lastElem.y].toString().toInt() == 1) {
+                if (map.get(Position(neighbour.x, neighbour.y)).toString().toInt() - map.get(Position(lastElem.x, lastElem.y)).toString().toInt() == 1) {
                     val newPath = mutableListOf<Position>()
                     newPath.addAll(trail.path)
                     newPath.add(neighbour)
