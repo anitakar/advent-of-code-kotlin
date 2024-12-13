@@ -1,8 +1,6 @@
 package aoc2024
 
 import readInput
-import kotlin.math.abs
-import kotlin.math.max
 
 
 fun main() {
