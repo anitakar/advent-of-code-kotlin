@@ -29,6 +29,23 @@ fun main() {
         }
     }
 
+    fun print(grid: Grid2, robots: List<Robot>) {
+        for (i in 0 until grid.maxX) {
+            for (j in 0 until  grid.maxY) {
+                val containsRobot = robots
+                    .map { it.position.x == i && it.position.y == j }
+                    .map { if(it) 1 else 0 }
+                    .sum() > 0
+                if (containsRobot) {
+                    print("*")
+                } else {
+                    print(" ")
+                }
+            }
+            println()
+        }
+    }
+
     fun parseRobot(line: String, grid: Grid2): Robot {
         val regex = "p=(\\d+),(\\d+) v=(-?\\d+),(-?\\d+)".toRegex()
         val match = regex.matchEntire(line)
@@ -71,14 +88,26 @@ fun main() {
         return quad1 * quad2 * quad3 * quad4
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>, gridSizeX: Int, gridSizeY: Int) {
+        val grid = Grid2(gridSizeX, gridSizeY)
+        val robots = mutableListOf<Robot>()
+        for (line in input) {
+            robots.add(parseRobot(line, grid))
+        }
+
+        for (i in 0 .. 10000) {
+            for (robot in robots) {
+                simulate(robot, grid, 1)
+            }
+            println("Iteration: " + (i + 1))
+            print(grid, robots)
+        }
     }
 
 
 
-    println(part1(readInput("aoc2024/Day14_test"), 7, 11, 100))
-    println(part1(readInput("aoc2024/Day14"), 103, 101, 100))
-//    println(part2(readInput("aoc2024/Day14_test")))
-//    println(part2(readInput("aoc2024/Day14")))
+//    println(part1(readInput("aoc2024/Day14_test"), 7, 11, 100))
+//    println(part1(readInput("aoc2024/Day14"), 103, 101, 100))
+//    part2(readInput("aoc2024/Day14_test"), 7, 11)
+    part2(readInput("aoc2024/Day14"), 103, 101)
 }
