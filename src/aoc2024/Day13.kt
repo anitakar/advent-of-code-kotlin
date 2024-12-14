@@ -61,17 +61,16 @@ fun main() {
             val prize = parsePrize(input.get(i * 4 + 2))
             val actualPrize = Pair(prize.first + 10000000000000, prize.second + 10000000000000)
 
-            val numX = actualPrize.first / (a.first * b.first)
-            val numY = actualPrize.second / (a.second * b.second)
+            val numX = actualPrize.first / b.first
+            val numY = actualPrize.second / b.second
             val num = min(numX, numY) - 1
-            val restX = actualPrize.first - num * a.first * b.first
-            val restY = actualPrize.second - num * a.second * b.second
+            val restX = actualPrize.first - num * a.first
+            val restY = actualPrize.second - num * a.second
 
-            val costSquare = cost(a, b, Pair(a.first * b.first, a.second * b.second))
             val costRest = cost(a, b, Pair(restX, restY))
 
             if (costRest != 0L) {
-                total += (costRest + num * costSquare)
+                total += (costRest + num)
             }
         }
         return total
