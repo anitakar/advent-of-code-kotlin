@@ -2,16 +2,22 @@ package aoc2024
 
 data class Position(val x: Int, val y:Int)
 
-class MutableGrid(private val inputMap: List<String>) {
-    val map = mutableListOf<MutableList<Char>>()
+class MutableGrid {
+    var map: MutableList<MutableList<Char>> = mutableListOf()
 
-    init {
+    constructor() {}
+
+    constructor(inputMap: List<String>) : this() {
         for (i in inputMap.indices) {
             map.add(mutableListOf())
             for (j in inputMap[i]. indices) {
                 map[i].add(inputMap[i][j])
             }
         }
+    }
+
+    constructor(other: MutableGrid): this() {
+        map = other.map
     }
 
     fun get(position: Position): Char {
@@ -70,6 +76,15 @@ class MutableGrid(private val inputMap: List<String>) {
             return right
         }
         return null
+    }
+
+    fun print() {
+        for (i in map.indices) {
+            for (j in map[i].indices) {
+                print(map[i][j])
+            }
+            println()
+        }
     }
 }
 
