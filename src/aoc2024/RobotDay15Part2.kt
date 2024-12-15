@@ -22,15 +22,18 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
         pointsToMove.add(nextPosition)
         pointsToMove.add(otherBoxPart(nextPosition))
 
-        val nextPoints = mutableListOf<Position>()
+        val nextPoints = mutableSetOf<Position>()
         nextPoints.addAll(pointsToMove)
         while (nextPoints.isNotEmpty()) {
-            val point = nextPoints.removeAt(0)
+            val point = nextPoints.iterator().next()
+            nextPoints.remove(point)
             val next = map.up(point)
             val value = map.get(next!!)
             if (value == '#') {
                 return
             } else if (value == '.') {
+                continue
+            } else if (nextPoints.contains(next)) {
                 continue
             } else {
                 nextPoints.add(next)
@@ -40,11 +43,12 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
             }
         }
 
-        for (i in (pointsToMove.size - 1) downTo 0) {
-            val toMove = pointsToMove[i]
+        pointsToMove.sortBy { it.x }
+        for (toMove in pointsToMove) {
             map.set(map.up(toMove)!!, map.get(toMove))
             map.set(toMove, '.')
         }
+        position = nextPosition
     }
 
     private fun otherBoxPart(box: Position): Position {
@@ -77,15 +81,18 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
         pointsToMove.add(nextPosition)
         pointsToMove.add(otherBoxPart(nextPosition))
 
-        val nextPoints = mutableListOf<Position>()
+        val nextPoints = mutableSetOf<Position>()
         nextPoints.addAll(pointsToMove)
         while (nextPoints.isNotEmpty()) {
-            val point = nextPoints.removeAt(0)
+            val point = nextPoints.iterator().next()
+            nextPoints.remove(point)
             val next = map.down(point)
             val value = map.get(next!!)
             if (value == '#') {
                 return
             } else if (value == '.') {
+                continue
+            } else if (nextPoints.contains(next)) {
                 continue
             } else {
                 nextPoints.add(next)
@@ -95,11 +102,12 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
             }
         }
 
-        for (i in (pointsToMove.size - 1) downTo 0) {
-            val toMove = pointsToMove[i]
-            map.set(map.up(toMove)!!, map.get(toMove))
+        pointsToMove.sortBy { -it.x }
+        for (toMove in pointsToMove) {
+            map.set(map.down(toMove)!!, map.get(toMove))
             map.set(toMove, '.')
         }
+        position = nextPosition
     }
 
     fun left() {
@@ -123,15 +131,18 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
         pointsToMove.add(nextPosition)
         pointsToMove.add(otherBoxPart(nextPosition))
 
-        val nextPoints = mutableListOf<Position>()
+        val nextPoints = mutableSetOf<Position>()
         nextPoints.addAll(pointsToMove)
         while (nextPoints.isNotEmpty()) {
-            val point = nextPoints.removeAt(0)
+            val point = nextPoints.iterator().next()
+            nextPoints.remove(point)
             val next = map.left(point)
             val value = map.get(next!!)
             if (value == '#') {
                 return
             } else if (value == '.') {
+                continue
+            } else if (nextPoints.contains(next)) {
                 continue
             } else {
                 nextPoints.add(next)
@@ -141,11 +152,12 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
             }
         }
 
-        for (i in (pointsToMove.size - 1) downTo 0) {
-            val toMove = pointsToMove[i]
+        pointsToMove.sortBy { it.y }
+        for (toMove in pointsToMove) {
             map.set(map.left(toMove)!!, map.get(toMove))
             map.set(toMove, '.')
         }
+        position = nextPosition
     }
 
     fun right() {
@@ -169,15 +181,18 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
         pointsToMove.add(nextPosition)
         pointsToMove.add(otherBoxPart(nextPosition))
 
-        val nextPoints = mutableListOf<Position>()
+        val nextPoints = mutableSetOf<Position>()
         nextPoints.addAll(pointsToMove)
         while (nextPoints.isNotEmpty()) {
-            val point = nextPoints.removeAt(0)
+            val point = nextPoints.iterator().next()
+            nextPoints.remove(point)
             val next = map.right(point)
             val value = map.get(next!!)
             if (value == '#') {
                 return
             } else if (value == '.') {
+                continue
+            } else if (nextPoints.contains(next)) {
                 continue
             } else {
                 nextPoints.add(next)
@@ -187,10 +202,11 @@ class RobotDay15Part2(var position: Position, val map: MutableGrid) {
             }
         }
 
-        for (i in (pointsToMove.size - 1) downTo 0) {
-            val toMove = pointsToMove[i]
+        pointsToMove.sortBy { -it.y }
+        for (toMove in pointsToMove) {
             map.set(map.right(toMove)!!, map.get(toMove))
             map.set(toMove, '.')
         }
+        position = nextPosition
     }
 }

@@ -88,7 +88,6 @@ fun main() {
                 else if (char == '<') robot.left()
             }
         }
-        map.print()
         var total = 0L
         for (i in map.map.indices) {
             for (j in map.map[i].indices) {
@@ -103,6 +102,7 @@ fun main() {
 
     println(part1(readInput("aoc2024/Day15_test")))
     println(part1(readInput("aoc2024/Day15")))
+    println(part2(readInput("aoc2024/Day15_test")))
     println(part2(readInput("aoc2024/Day15_test2")))
-//    println(part2(readInput("aoc2024/Day15")))
+    println(part2(readInput("aoc2024/Day15")))
 }
