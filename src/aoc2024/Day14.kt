@@ -106,8 +106,8 @@ fun main() {
 
 
 
-//    println(part1(readInput("aoc2024/Day14_test"), 7, 11, 100))
-//    println(part1(readInput("aoc2024/Day14"), 103, 101, 100))
-//    part2(readInput("aoc2024/Day14_test"), 7, 11)
+    println(part1(readInput("aoc2024/Day14_test"), 7, 11, 100))
+    println(part1(readInput("aoc2024/Day14"), 103, 101, 100))
+    part2(readInput("aoc2024/Day14_test"), 7, 11)
     part2(readInput("aoc2024/Day14"), 103, 101)
 }
