@@ -2,10 +2,8 @@ package aoc2024
 
 data class Position(val x: Int, val y:Int)
 
-class MutableGrid {
+class MutableGrid() {
     var map: MutableList<MutableList<Char>> = mutableListOf()
-
-    constructor() {}
 
     constructor(inputMap: List<String>) : this() {
         for (i in inputMap.indices) {
@@ -14,10 +12,6 @@ class MutableGrid {
                 map[i].add(inputMap[i][j])
             }
         }
-    }
-
-    constructor(other: MutableGrid): this() {
-        map = other.map
     }
 
     fun get(position: Position): Char {

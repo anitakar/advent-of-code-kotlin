@@ -176,16 +176,22 @@ fun main() {
             val verticalPointsVisited = mutableSetOf<Position>()
             for (position in perimeter) {
                 if (!horizontalPointsVisited.contains(position) && formsHorizontalLine(position, map)) {
-                    horizontalLines.add(trackHorizontalLine(position, perimeter, map))
-                    horizontalPointsVisited.addAll(horizontalLines.last())
+                    val horizontalLine = trackHorizontalLine(position, perimeter, map)
+                    horizontalPointsVisited.addAll(horizontalLine)
+                    if (horizontalLine.size > 1 || !verticalPointsVisited.contains(horizontalLine.first())) {
+                        horizontalLines.add(horizontalLine)
+                    }
                 }
                 if (!verticalPointsVisited.contains(position) && formsVerticalLine(position, map)) {
-                    verticalLines.add(trackVerticalLine(position, perimeter, map))
-                    verticalPointsVisited.addAll(verticalLines.last())
+                    val verticalLine = trackVerticalLine(position, perimeter, map)
+                    verticalPointsVisited.addAll(verticalLine)
+                    if (verticalLine.size > 1 || !horizontalPointsVisited.contains(verticalLine.first())) {
+                        verticalLines.add(verticalLine)
+                    }
                 }
             }
 
-            cost += area.positions.size * (horizontalLines.size + verticalLines.size)
+            cost += area.positions.size * (4 * horizontalLines.size + 4 * verticalLines.size)
         }
 
         return cost

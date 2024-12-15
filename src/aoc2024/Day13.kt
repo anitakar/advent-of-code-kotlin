@@ -61,27 +61,42 @@ fun main() {
             val prize = parsePrize(input.get(i * 4 + 2))
             val actualPrize = Pair(prize.first + 10000000000000, prize.second + 10000000000000)
 
-            val numX = actualPrize.first / b.first
-            val numY = actualPrize.second / b.second
-            val num = min(numX, numY) - 1
-            val restX = actualPrize.first - num * a.first
-            val restY = actualPrize.second - num * a.second
+            var minCost = Long.MAX_VALUE
+            for (j in 0 .. 1000) {
+                val numX = actualPrize.first / b.first
+                val numY = actualPrize.second / b.second
+                val num = min(numX, numY) - j
+                val restX = actualPrize.first - num * b.first
+                val restY = actualPrize.second - num * b.second
 
-            val costRest = cost(a, b, Pair(restX, restY))
+                val costRest = cost(a, b, Pair(restX, restY))
 
-            if (costRest != 0L) {
-                total += (costRest + num)
+                if (costRest != 0L) {
+                    minCost = min(minCost, costRest + num)
+                }
+            }
+            for (j in 0 .. 1000) {
+                val numX = actualPrize.first / a.first
+                val numY = actualPrize.second / a.second
+                val num = min(numX, numY) - j
+                val restX = actualPrize.first - num * a.first
+                val restY = actualPrize.second - num * a.second
+
+                val costRest = cost(a, b, Pair(restX, restY))
+
+                if (costRest != 0L) {
+                    minCost = min(minCost, costRest + 3*num)
+                }
+            }
+            if (minCost != Long.MAX_VALUE) {
+                total += minCost
             }
         }
         return total
     }
 
-    println(parseButtonA("Button A: X+94, Y+34"))
-    println(parseButtonB("Button B: X+22, Y+67"))
-    println(parsePrize("Prize: X=8400, Y=5400"))
-
     println(part1(readInput("aoc2024/Day13_test")))
     println(part1(readInput("aoc2024/Day13")))
     println(part2(readInput("aoc2024/Day13_test")))
-//    println(part2(readInput("aoc2024/Day13")))
+    println(part2(readInput("aoc2024/Day13")))
 }
