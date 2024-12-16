@@ -1,6 +1,7 @@
 package aoc2024
 
 import readInput
+import java.util.PriorityQueue
 import kotlin.math.min
 
 
@@ -34,18 +35,18 @@ fun main() {
 
     val smallest = mutableMapOf<Pair<Position, Char>, Long>()
     val visited = mutableSetOf<Pair<Position, Char>>()
-    val toVisit = mutableListOf<Pair<Position, Char>>()
+    val toVisit = PriorityQueue<Pair<Pair<Position, Char>, Long>> { a, b -> (a.second - b.second).toInt() }
 
     fun updateCost(next: Pair<Position, Char>?, newCost: Long) {
         if (next != null) {
-            if (!visited.contains(next)) {
-                toVisit.add(next)
-            }
-
             if (smallest.contains(next)) {
                 smallest[next] = min(smallest[next]!!, newCost)
             } else {
                 smallest[next] = newCost
+            }
+
+            if (!visited.contains(next)) {
+                toVisit.add(Pair(next, smallest[next]!!))
             }
         }
     }
@@ -59,23 +60,23 @@ fun main() {
         val start = map.find('S')!!
         val end = map.find('E')!!
 
-        toVisit.add(Pair(start, 'E'))
+        toVisit.add(Pair(Pair(start, 'E'), 0))
         smallest[Pair(start, 'E')] = 0
         while(toVisit.isNotEmpty()) {
-            val current = toVisit.removeAt(0)
-            if (visited.contains(current))
+            val current = toVisit.poll()
+            if (visited.contains(current.first))
                 continue
 
-            visited.add(current)
-            val cost = smallest[current]!!
+            visited.add(current.first)
+            val cost = current.second
 
-            val nextStraight = nextStraight(current, map)
+            val nextStraight = nextStraight(current.first, map)
             updateCost(nextStraight, cost + 1)
 
-            val nextClockwise = Pair(current.first, Direction(current.second).nextClockwise()!!)
+            val nextClockwise = Pair(current.first.first, Direction(current.first.second).nextClockwise()!!)
             updateCost(nextClockwise, cost + 1000)
 
-            val nextCounterClockwise = Pair(current.first, Direction(current.second).nextCounterClockwise()!!)
+            val nextCounterClockwise = Pair(current.first.first, Direction(current.first.second).nextCounterClockwise()!!)
             updateCost(nextCounterClockwise, cost + 1000)
         }
 
