@@ -163,35 +163,49 @@ fun main() {
 
         var cost = 0L
         for (area in areas) {
-            val perimeter = mutableListOf<Position>()
+            val outsidePerimeterSet = mutableSetOf<Position>()
             for (position in area.positions) {
                 if (onPerimeter(position, map)) {
-                    perimeter.add(position)
+                    val up = map.up(position)
+                    if (up == null) outsidePerimeterSet.add(Position(-1, position.y))
+                    else if (map.get(up) != map.get(position)) outsidePerimeterSet.add(up)
+
+                    val down = map.down(position)
+                    if (down == null) outsidePerimeterSet.add(Position(position.x + 1, position.y))
+                    else if (map.get(down) != map.get(position)) outsidePerimeterSet.add(down)
+
+                    val right = map.right(position)
+                    if (right == null) outsidePerimeterSet.add(Position(position.x, position.y + 1))
+                    else if (map.get(right) != map.get(position)) outsidePerimeterSet.add(right)
+
+                    val left = map.left(position)
+                    if (left == null) outsidePerimeterSet.add(Position(position.x, -1))
+                    else if (map.get(left) != map.get(position)) outsidePerimeterSet.add(left)
                 }
             }
+            var outsidePerimeter = outsidePerimeterSet.toList()
 
-            val horizontalLines = mutableListOf<MutableList<Position>>()
-            val verticalLines = mutableListOf<MutableList<Position>>()
-            val horizontalPointsVisited = mutableSetOf<Position>()
-            val verticalPointsVisited = mutableSetOf<Position>()
-            for (position in perimeter) {
-                if (!horizontalPointsVisited.contains(position) && formsHorizontalLine(position, map)) {
-                    val horizontalLine = trackHorizontalLine(position, perimeter, map)
-                    horizontalPointsVisited.addAll(horizontalLine)
-                    if (horizontalLine.size > 1 || !verticalPointsVisited.contains(horizontalLine.first())) {
-                        horizontalLines.add(horizontalLine)
-                    }
-                }
-                if (!verticalPointsVisited.contains(position) && formsVerticalLine(position, map)) {
-                    val verticalLine = trackVerticalLine(position, perimeter, map)
-                    verticalPointsVisited.addAll(verticalLine)
-                    if (verticalLine.size > 1 || !horizontalPointsVisited.contains(verticalLine.first())) {
-                        verticalLines.add(verticalLine)
-                    }
-                }
+            outsidePerimeter = outsidePerimeter.sortedWith { a, b ->
+                if (a.x != b.x) a.x - b.x else a.y - b.y
+            }
+            var horizontalLinesCount = 1
+            for (i in 1 until outsidePerimeter.size) {
+                val prev = outsidePerimeter[i-1]
+                val cur = outsidePerimeter[i]
+                if (prev.x != cur.x || prev.y != cur.y - 1) horizontalLinesCount++
             }
 
-            cost += area.positions.size * (4 * horizontalLines.size + 4 * verticalLines.size)
+            outsidePerimeter = outsidePerimeter.sortedWith { a, b ->
+                if (a.y != b.y) a.y - b.y else a.x - b.x
+            }
+            var verticalLinesCount = 1
+            for (i in 1 until outsidePerimeter.size) {
+                val prev = outsidePerimeter[i-1]
+                val cur = outsidePerimeter[i]
+                if (prev.y != cur.y || prev.x != cur.x - 1) verticalLinesCount++
+            }
+
+            cost += (area.positions.size * (horizontalLinesCount + verticalLinesCount))
         }
 
         return cost
