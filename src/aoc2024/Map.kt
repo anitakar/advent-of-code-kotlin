@@ -153,3 +153,23 @@ class Grid(val map: List<String>) {
         return null
     }
 }
+
+class Direction(var current: Char) {
+
+    fun nextClockwise(): Char? {
+        if (current == 'N') return 'E'
+        else if (current == 'E') return 'S'
+        else if (current == 'S') return 'W'
+        else if (current == 'W') return 'N'
+        else return null
+    }
+
+    fun nextCounterClockwise(): Char? {
+        if (current == 'N') return 'W'
+        else if (current == 'W') return 'S'
+        else if (current == 'S') return 'E'
+        else if (current == 'E') return 'N'
+        else return null
+    }
+
+}
