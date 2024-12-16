@@ -101,6 +101,10 @@ class Grid(val map: List<String>) {
         return map[position.x][position.y]
     }
 
+    fun get(x: Int, y: Int): Char {
+        return map[x][y]
+    }
+
     fun getNeighbours(position: Position): List<Position> {
         val neighbours = mutableListOf<Position>()
 
@@ -140,6 +144,17 @@ class Grid(val map: List<String>) {
         val right = Position(position.x, position.y + 1)
         if (isValid(right)) {
             return right
+        }
+        return null
+    }
+
+    fun find(value: Char): Position? {
+        for (i in map.indices) {
+            for (j in map[i].indices) {
+                if (get(i, j) == value) {
+                    return Position(i, j)
+                }
+            }
         }
         return null
     }
