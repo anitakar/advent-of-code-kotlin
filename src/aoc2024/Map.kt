@@ -1,6 +1,6 @@
 package aoc2024
 
-data class Position(val x: Int, val y:Int)
+data class Position(val x: Int, val y: Int)
 
 class MutableGrid() {
     var map: MutableList<MutableList<Char>> = mutableListOf()
@@ -8,7 +8,7 @@ class MutableGrid() {
     constructor(inputMap: List<String>) : this() {
         for (i in inputMap.indices) {
             map.add(mutableListOf())
-            for (j in inputMap[i]. indices) {
+            for (j in inputMap[i].indices) {
                 map[i].add(inputMap[i][j])
             }
         }
@@ -172,4 +172,68 @@ class Direction(var current: Char) {
         else return null
     }
 
+}
+
+class RectangularGrid(
+    val maxX: Int, val maxY: Int,
+    val obstacles: MutableSet<Position>
+) {
+    fun isValid(position: Position): Boolean {
+        if (position.x < 0) return false
+        if (position.x >= maxX) return false
+        if (position.y < 0) return false
+        if (position.y >= maxY) return false
+        return true
+    }
+
+    fun get(position: Position): Char {
+        return if (obstacles.contains(position)) '#' else '.'
+    }
+
+    fun get(x: Int, y: Int): Char {
+        return get(Position(x, y))
+    }
+
+    fun up(position: Position): Position? {
+        val up = Position(position.x - 1, position.y)
+        if (isValid(up)) {
+            return up
+        }
+        return null
+    }
+
+    fun down(position: Position): Position? {
+        val down = Position(position.x + 1, position.y)
+        if (isValid(down)) {
+            return down
+        }
+        return null
+    }
+
+    fun left(position: Position): Position? {
+        val left = Position(position.x, position.y - 1)
+        if (isValid(left)) {
+            return left
+        }
+        return null
+    }
+
+    fun right(position: Position): Position? {
+        val right = Position(position.x, position.y + 1)
+        if (isValid(right)) {
+            return right
+        }
+        return null
+    }
+
+    fun getNeighbours(position: Position): List<Position> {
+        val neighbours = mutableListOf<Position>()
+
+        up(position)?.let { neighbours.add(it) }
+        down(position)?.let { neighbours.add(it) }
+        left(position)?.let { neighbours.add(it) }
+        right(position)?.let { neighbours.add(it) }
+
+        return neighbours
+    }
 }
