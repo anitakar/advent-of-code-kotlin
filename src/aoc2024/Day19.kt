@@ -43,6 +43,34 @@ fun main() {
         return false
     }
 
+    val numMemoized = mutableMapOf<String, Long>()
+
+    fun numPossible(patterns: List<String>, left: String): Long {
+        if (left.isEmpty()) {
+            return 1
+        }
+
+        val toCheck = mutableListOf<String>()
+        for (pattern in patterns) {
+            if (left.startsWith(pattern)) {
+                toCheck.add(left.substring(pattern.length, left.length))
+            }
+        }
+        if (toCheck.isNotEmpty()) {
+            val result = toCheck.sumOf {
+                if (numMemoized.contains(it)) {
+                    numMemoized[it]!!
+                } else {
+                    val toMemoize = numPossible(patterns, it)
+                    numMemoized[it] = toMemoize
+                    toMemoize
+                }
+            }
+            return result
+        }
+        return 0
+    }
+
     fun part1(input: List<String>): Int {
         memoized.clear()
         val (patterns, designs) = parseInput(input)
@@ -55,14 +83,20 @@ fun main() {
         return total
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>): Long {
+        numMemoized.clear()
+        val (patterns, designs) = parseInput(input)
+        var total = 0L
+        for (design in designs) {
+            total += numPossible(patterns, design)
+        }
+        return total
     }
 
 
 
     println(part1(readInput("aoc2024/Day19_test")))
     println(part1(readInput("aoc2024/Day19")))
-//    println(part2(readInput("aoc2024/Day19_test")))
-//    println(part2(readInput("aoc2024/Day19")))
+    println(part2(readInput("aoc2024/Day19_test")))
+    println(part2(readInput("aoc2024/Day19")))
 }
