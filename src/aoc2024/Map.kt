@@ -2,7 +2,56 @@ package aoc2024
 
 data class Position(val x: Int, val y: Int)
 
-class MutableGrid() {
+interface IGrid {
+    fun get(position: Position): Char
+    fun get(x: Int, y: Int): Char
+    fun isValid(position: Position): Boolean
+
+    fun up(position: Position): Position? {
+        val up = Position(position.x - 1, position.y)
+        if (isValid(up)) {
+            return up
+        }
+        return null
+    }
+
+    fun down(position: Position): Position? {
+        val down = Position(position.x + 1, position.y)
+        if (isValid(down)) {
+            return down
+        }
+        return null
+    }
+
+    fun left(position: Position): Position? {
+        val left = Position(position.x, position.y - 1)
+        if (isValid(left)) {
+            return left
+        }
+        return null
+    }
+
+    fun right(position: Position): Position? {
+        val right = Position(position.x, position.y + 1)
+        if (isValid(right)) {
+            return right
+        }
+        return null
+    }
+
+    fun getNeighbours(position: Position): List<Position> {
+        val neighbours = mutableListOf<Position>()
+
+        up(position)?.let { neighbours.add(it) }
+        down(position)?.let { neighbours.add(it) }
+        left(position)?.let { neighbours.add(it) }
+        right(position)?.let { neighbours.add(it) }
+
+        return neighbours
+    }
+}
+
+class MutableGrid() : IGrid {
     var map: MutableList<MutableList<Char>> = mutableListOf()
 
     constructor(inputMap: List<String>) : this() {
@@ -14,11 +63,11 @@ class MutableGrid() {
         }
     }
 
-    fun get(position: Position): Char {
+    override fun get(position: Position): Char {
         return map[position.x][position.y]
     }
 
-    fun get(x: Int, y: Int): Char {
+    override fun get(x: Int, y: Int): Char {
         return map[x][y]
     }
 
@@ -32,44 +81,12 @@ class MutableGrid() {
         return value
     }
 
-    fun isValid(position: Position): Boolean {
+    override fun isValid(position: Position): Boolean {
         if (position.x < 0) return false
         if (position.x >= map.size) return false
         if (position.y < 0) return false
         if (position.y >= map[position.x].size) return false
         return true
-    }
-
-    fun up(position: Position): Position? {
-        val up = Position(position.x - 1, position.y)
-        if (isValid(up)) {
-            return up
-        }
-        return null
-    }
-
-    fun down(position: Position): Position? {
-        val down = Position(position.x + 1, position.y)
-        if (isValid(down)) {
-            return down
-        }
-        return null
-    }
-
-    fun left(position: Position): Position? {
-        val left = Position(position.x, position.y - 1)
-        if (isValid(left)) {
-            return left
-        }
-        return null
-    }
-
-    fun right(position: Position): Position? {
-        val right = Position(position.x, position.y + 1)
-        if (isValid(right)) {
-            return right
-        }
-        return null
     }
 
     fun print() {
@@ -82,8 +99,8 @@ class MutableGrid() {
     }
 }
 
-class Grid(val map: List<String>) {
-    fun isValid(position: Position): Boolean {
+class Grid(val map: List<String>): IGrid {
+    override fun isValid(position: Position): Boolean {
         if (position.x < 0) return false
         if (position.x >= map.size) return false
         if (position.y < 0) return false
@@ -91,55 +108,12 @@ class Grid(val map: List<String>) {
         return true
     }
 
-    fun get(position: Position): Char {
+    override fun get(position: Position): Char {
         return map[position.x][position.y]
     }
 
-    fun get(x: Int, y: Int): Char {
+    override fun get(x: Int, y: Int): Char {
         return map[x][y]
-    }
-
-    fun getNeighbours(position: Position): List<Position> {
-        val neighbours = mutableListOf<Position>()
-
-        up(position)?.let { neighbours.add(it) }
-        down(position)?.let { neighbours.add(it) }
-        left(position)?.let { neighbours.add(it) }
-        right(position)?.let { neighbours.add(it) }
-
-        return neighbours
-    }
-
-    fun up(position: Position): Position? {
-        val up = Position(position.x - 1, position.y)
-        if (isValid(up)) {
-            return up
-        }
-        return null
-    }
-
-    fun down(position: Position): Position? {
-        val down = Position(position.x + 1, position.y)
-        if (isValid(down)) {
-            return down
-        }
-        return null
-    }
-
-    fun left(position: Position): Position? {
-        val left = Position(position.x, position.y - 1)
-        if (isValid(left)) {
-            return left
-        }
-        return null
-    }
-
-    fun right(position: Position): Position? {
-        val right = Position(position.x, position.y + 1)
-        if (isValid(right)) {
-            return right
-        }
-        return null
     }
 
     fun find(value: Char): Position? {
@@ -177,8 +151,8 @@ class Direction(var current: Char) {
 class RectangularGrid(
     val maxX: Int, val maxY: Int,
     val obstacles: MutableSet<Position>
-) {
-    fun isValid(position: Position): Boolean {
+) : IGrid {
+    override fun isValid(position: Position): Boolean {
         if (position.x < 0) return false
         if (position.x >= maxX) return false
         if (position.y < 0) return false
@@ -186,54 +160,12 @@ class RectangularGrid(
         return true
     }
 
-    fun get(position: Position): Char {
+    override fun get(position: Position): Char {
         return if (obstacles.contains(position)) '#' else '.'
     }
 
-    fun get(x: Int, y: Int): Char {
+    override fun get(x: Int, y: Int): Char {
         return get(Position(x, y))
     }
 
-    fun up(position: Position): Position? {
-        val up = Position(position.x - 1, position.y)
-        if (isValid(up)) {
-            return up
-        }
-        return null
-    }
-
-    fun down(position: Position): Position? {
-        val down = Position(position.x + 1, position.y)
-        if (isValid(down)) {
-            return down
-        }
-        return null
-    }
-
-    fun left(position: Position): Position? {
-        val left = Position(position.x, position.y - 1)
-        if (isValid(left)) {
-            return left
-        }
-        return null
-    }
-
-    fun right(position: Position): Position? {
-        val right = Position(position.x, position.y + 1)
-        if (isValid(right)) {
-            return right
-        }
-        return null
-    }
-
-    fun getNeighbours(position: Position): List<Position> {
-        val neighbours = mutableListOf<Position>()
-
-        up(position)?.let { neighbours.add(it) }
-        down(position)?.let { neighbours.add(it) }
-        left(position)?.let { neighbours.add(it) }
-        right(position)?.let { neighbours.add(it) }
-
-        return neighbours
-    }
 }
