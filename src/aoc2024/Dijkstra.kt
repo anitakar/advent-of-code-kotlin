@@ -1,6 +1,7 @@
 package aoc2024
 
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.min
 
 class Dijkstra(val map: IGrid) {
@@ -23,7 +24,9 @@ class Dijkstra(val map: IGrid) {
             val neighbours = map.getNeighbours(current.first)
             for (neighbour in neighbours) {
                 if (map.get(neighbour) != '#') {
-                    updateCost(neighbour, cost + 1, current.first)
+                    updateCost(neighbour,
+                        cost + abs(neighbour.x - current.first.x) + abs(neighbour.y - current.first.y),
+                        current.first)
                 }
             }
         }
