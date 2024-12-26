@@ -59,4 +59,30 @@ class Dijkstra(val map: IGrid) {
             }
         }
     }
+
+    fun minPaths(paths: MutableList<MutableList<Position>>): MutableList<MutableList<Position>> {
+        var added = true
+        while (added) {
+            added = false
+            val toAdd = mutableListOf<MutableList<Position>>()
+            for (path in paths) {
+                val prevs = smallestPrev.filter { it.key == path.last() }.values.flatten()
+                if (prevs.size == 1) {
+                    added = true
+                    path.add(prevs[0])
+                } else if (prevs.size > 1) {
+                    added = true
+                    for (i in 1 until prevs.size) {
+                        val newList = mutableListOf<Position>()
+                        newList.addAll(path)
+                        newList.add(prevs[i])
+                        toAdd.add(newList)
+                    }
+                    path.add(prevs[0])
+                }
+            }
+            paths.addAll(toAdd)
+        }
+        return paths
+    }
 }
