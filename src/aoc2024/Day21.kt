@@ -5,88 +5,119 @@ import readInput
 
 fun main() {
 
-    val numericKeyPadPresses = mapOf(
-        Pair('0', 'A') to listOf(">"),
-        Pair('0', '1') to listOf("^<"),
-        Pair('0', '2') to listOf("^"),
-        Pair('0', '3') to listOf(">^", "^>"),
-        Pair('0', '4') to listOf("^^<", "^<^"),
-        Pair('0', '5') to listOf("^^"),
-        Pair('0', '6') to listOf("^^>", "^>^", ">^^"),
-        Pair('0', '7') to listOf("^^^<", "^^<^", "^<^^"),
-        Pair('0', '8') to listOf("^^^"),
-        Pair('0', '9') to listOf("^^^>", "^^>^", "^>^^", ">^^^"),
-        Pair('A', '0') to listOf("<"),
-        Pair('A', '1') to listOf("<^<", "^<<"),
-        Pair('A', '2') to listOf("<^", "^<"),
-        Pair('A', '3') to listOf("^"),
-        Pair('A', '4') to listOf("^^<<", "^<<^", "^<^<", "<^<^", "<^^<"),
-        Pair('A', '5') to listOf("^^<", "^<^", "<^^"),
-        Pair('A', '6') to listOf("^^"),
-        Pair('A', '7') to listOf("^^^<<", "^^<<^", "^^<^<", "^<<^^", "^<^^<", "^<^<^", "<^<^^", "<^^^<", "<^^<^"),
-        Pair('A', '8') to listOf("^^^<", "^^<^", "^<^^", "<^^^"),
-        Pair('A', '9') to listOf("^^^"),
-        Pair('1', '2') to listOf(),
-        Pair('1', '3') to listOf(),
-        Pair('1', '4') to listOf(),
-        Pair('1', '5') to listOf(),
-        Pair('1', '6') to listOf(),
-        Pair('1', '7') to listOf(),
-        Pair('1', '8') to listOf(),
-        Pair('1', '9') to listOf(),
-        Pair('1', 'A') to listOf(),
-    )
+    val numericKeyPad = DijkstraNumericKeyPad()
+    val directionalKeyPad = DijkstraDirectionalKeyPad()
 
-    val directionalKeyPadPresses = mapOf(
-        Pair('<', 'v') to listOf(">"),
-        Pair('<', '^') to listOf(">^"),
-        Pair('<', 'A') to listOf(">>^", ">^>"),
-        Pair('v', '>') to listOf(">"),
-        Pair('v', '<') to listOf("<"),
-        Pair('v', 'A') to listOf(">^", "^>"),
-        Pair('^', '<') to listOf("v<"),
-        Pair('^', '>') to listOf("v>", ">v"),
-        Pair('^', 'A') to listOf(">"),
-        Pair('>', 'v') to listOf("<"),
-        Pair('>', '^') to listOf("<^", "6<"),
-        Pair('>', 'A') to listOf("^"),
-        Pair('A', '<') to listOf("<v<", "v<<"),
-        Pair('A', '^') to listOf("<"),
-        Pair('A', 'v') to listOf("<v", "v<"),
-        Pair('A', '>') to listOf("v"),
-    )
-
-    fun keyPadDirections(code: String): String {
-        var result = ""
-        var first = 'A'
-        var second = code[0]
-        var third = code[1]
-        var fourth = code[2]
-        var fifth = code[3]
-
-        result = result + numericKeyPadPresses[Pair(first, second)]!![0]
-        result = result + numericKeyPadPresses[Pair(second, third)]!![0]
-        result = result + numericKeyPadPresses[Pair(third, fourth)]!![0]
-        result = result + numericKeyPadPresses[Pair(fourth, fifth)]!![0]
-
+    fun keysToPressesNumericKeyPad(keys: List<Char>): List<Char> {
+        val result = mutableListOf<Char>()
+        for (i in (keys.size - 1) downTo 1) {
+            result.add(numericKeyPad.getDirection(keys[i], keys[i-1]))
+        }
         return result
     }
 
-    fun keyPadKeyPadDirections(code: String): String {
-        var result: String = ""
+    fun keysToPressesDirectionalKeyPad(keys: List<Char>): List<Char> {
+        val result = mutableListOf<Char>()
+        for (i in (keys.size - 1) downTo 1) {
+            result.add(directionalKeyPad.getDirection(keys[i], keys[i-1]))
+        }
+        return result
+    }
 
-        var prev: Char = 'A'
-        for (i in 0 until code.length - 1) {
-            val next: Char = code[i]
-            result = result + directionalKeyPadPresses[Pair(prev, next)]!![0]
+    fun keyPadDirections(code: String): List<String> {
+        var result = mutableListOf<String>()
+        var prev = 'A'
+
+        for (next in code) {
+            val dijkstra = DijkstraNumericKeyPad()
+            dijkstra.shortestPath(prev, next)
+            val paths = dijkstra.minPaths(next).map { keysToPressesNumericKeyPad(it) + 'A' }.map { it.joinToString(separator = "") }
+
+            if (result.isEmpty()) {
+                result = paths.toMutableList()
+                prev = next
+                continue
+            }
+
+            if (paths.size == 1) {
+                for (i in result.indices) {
+                    result[i] = (result[i] + paths[0])
+                }
+            } else {
+                val sizeBeforeAdding = result.size
+                for (j in 1 until paths.size) {
+                    for (i in 0 until sizeBeforeAdding) {
+                        result.add(result[i] + paths[j])
+                    }
+                }
+                for (i in 0 until sizeBeforeAdding) {
+                    result[i] = (result[i] + paths[0])
+                }
+            }
             prev = next
         }
 
         return result
     }
 
-    fun part1(input: List<String>): Int {
-        return 0
+    fun keyPadKeyPadDirections(code: String): List<String> {
+        var result = mutableListOf<String>()
+        var prev = 'A'
+
+        for (next in code) {
+            val dijkstra = DijkstraDirectionalKeyPad()
+            dijkstra.shortestPath(prev, next)
+            val paths = dijkstra.minPaths(next).map { keysToPressesDirectionalKeyPad(it) + 'A' }.map { it.joinToString(separator = "") }
+
+            if (result.isEmpty()) {
+                result = paths.toMutableList()
+                prev = next
+                continue
+            }
+
+            if (paths.size == 1) {
+                for (i in result.indices) {
+                    result[i] = (result[i] + paths[0])
+                }
+            } else {
+                val sizeBeforeAdding = result.size
+                for (j in 1 until paths.size) {
+                    for (i in 0 until sizeBeforeAdding) {
+                        result.add(result[i] + paths[j])
+                    }
+                }
+                for (i in 0 until sizeBeforeAdding) {
+                    result[i] = (result[i] + paths[0])
+                }
+            }
+            prev = next
+        }
+
+        return result
+    }
+
+    fun finalDirections(code: String): String {
+        val possibleRobot1Directions = keyPadDirections(code)
+        val possibleRobot2Directions = possibleRobot1Directions.map {
+            keyPadKeyPadDirections(it)
+        }.flatten()
+        val possibleFinalDirections = possibleRobot2Directions.map {
+            keyPadKeyPadDirections(it)
+        }.flatten()
+        return possibleFinalDirections.minBy { it.length }
+    }
+
+    fun complexity(directions: String, code: String): Long {
+        return directions.length * (code.substring(0, 3).toLong())
+    }
+
+    fun part1(input: List<String>): Long {
+        var total = 0L
+        for (code in input) {
+            val directions = finalDirections(code)
+            total += complexity(directions, code)
+        }
+        return total
     }
 
     fun part2(input: List<String>): Int {
@@ -94,9 +125,9 @@ fun main() {
     }
 
 
-
-    println(part1(readInput("aoc2024/Day21_test")))
+    println(keyPadDirections("029A"))
+    println(complexity(finalDirections("029A"), "029A"))
     println(part1(readInput("aoc2024/Day21")))
-    println(part2(readInput("aoc2024/Day21_test")))
-    println(part2(readInput("aoc2024/Day21")))
+//    println(part2(readInput("aoc2024/Day21_test")))
+//    println(part2(readInput("aoc2024/Day21")))
 }
