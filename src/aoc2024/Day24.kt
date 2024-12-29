@@ -6,7 +6,7 @@ import readInput
 fun main() {
 
     class Gate(
-        val name: String, var value: Boolean? = null,
+        var name: String, var value: Boolean? = null,
         val operand: String? = null, val operator1: String? = null, val operator2: String? = null
     ) {
         fun calculate(op1: Boolean, op2: Boolean): Boolean {
@@ -67,14 +67,33 @@ fun main() {
         return bytes.toLong(2)
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun toGraphviz(parsed: Map<String, Gate>) {
+        for (gate in parsed.values) {
+            if (gate.operator1 != null) {
+                println(gate.operator1 + " -> " + gate.name + " [label=\"${gate.operand}\"] " + ";")
+                println(gate.operator2 + " -> " + gate.name + " [label=\"${gate.operand}\"] " + ";")
+            }
+        }
     }
 
+    fun swap(parsed: Map<String, Gate>, name1: String, name2: String) {
+        parsed[name1]!!.name = name2
+        parsed[name2]!!.name = name1
+    }
+
+    fun part2(input: List<String>) {
+        val graph = parseInput(readInput("aoc2024/Day24"))
+        //    toGraphviz(graph)
+        swap(graph, "vkq", "z11")
+        swap(graph, "mmk", "z24")
+        swap(graph, "pvb", "qdq")
+        swap(graph, "hqh", "z38")
+        //hqh,mmk,pvb,qdq,vkq,z11,z24,z38
+        toGraphviz(graph)
+    }
 
 
     println(part1(readInput("aoc2024/Day24_test")))
     println(part1(readInput("aoc2024/Day24")))
-//    println(part2(readInput("aoc2024/Day24_test")))
-//    println(part2(readInput("aoc2024/Day24")))
+    println(part2(readInput("aoc2024/Day24")))
 }
