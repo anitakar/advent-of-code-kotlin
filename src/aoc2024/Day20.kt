@@ -101,8 +101,7 @@ fun main() {
             val innerDijkstra = Dijkstra(GridWithCheat2(map, i.toInt()))
             val smaller = innerDijkstra.shortestPath(start, end)!!
             if (smallest - smaller >= minNumSaved) {
-                numCheatsAtLeast += innerDijkstra.minPaths(mutableListOf(mutableListOf(end))).size
-                println("Iteration $i: $numCheatsAtLeast")
+                numCheatsAtLeast += innerDijkstra.numMinPaths(end)
             }
         }
         return numCheatsAtLeast
@@ -114,5 +113,5 @@ fun main() {
     println(part2(readInput("aoc2024/Day20_test"), 74))
     println(part2(readInput("aoc2024/Day20_test"), 72))
     println(part2(readInput("aoc2024/Day20_test"), 70))
-    println(part2(readInput("aoc2024/Day20"), 100))
+//    println(part2(readInput("aoc2024/Day20"), 100))
 }

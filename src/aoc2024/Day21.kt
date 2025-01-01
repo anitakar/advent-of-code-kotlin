@@ -70,6 +70,12 @@ fun main() {
 
     val memoizedKeyPadKeyPadDirections = mutableMapOf<Pair<Char, Char>, List<String>>()
 
+    fun trimResults(results: MutableList<String>) {
+        results.sortBy { numChanges(it) }
+        val minResults = numChanges(results.first())
+        results.removeIf { numChanges(it) > minResults }
+    }
+
     fun keyPadKeyPadDirections(code: String): List<String> {
         var result = mutableListOf<String>()
         var prev = 'A'
@@ -98,6 +104,7 @@ fun main() {
                     result[i] = (result[i] + paths[0])
                 }
             }
+            trimResults(result)
             prev = next
         }
 
@@ -146,6 +153,7 @@ fun main() {
             }.flatten().sortedBy { numChanges(it) }
             val minChanges = numChanges(possibleDirections.first())
             possibleDirections = possibleDirections.filter { numChanges(it) == minChanges }
+            println(possibleDirections[0])
         }
         return possibleDirections.minBy { it.length }
     }

@@ -89,4 +89,32 @@ abstract class DijkstraGeneric<Key> {
         }
         return paths
     }
+
+    fun numMinPaths(end: Key): Int {
+        val paths = mutableListOf(mutableListOf(end))
+        var added = true
+        while (added) {
+            added = false
+            val toAdd = mutableListOf<MutableList<Key>>()
+            for (path in paths) {
+                val prevs = smallestPrev.filter { it.key == path.last() }.values.flatten()
+                if (prevs.size == 1) {
+                    added = true
+                    path.removeLast()
+                    path.add(prevs[0])
+                } else if (prevs.size > 1) {
+                    added = true
+                    path.removeLast()
+                    path.add(prevs[0])
+                    for (i in 1 until prevs.size) {
+                        val newList = mutableListOf<Key>()
+                        newList.add(prevs[i])
+                        toAdd.add(newList)
+                    }
+                }
+            }
+            paths.addAll(toAdd)
+        }
+        return paths.size
+    }
 }

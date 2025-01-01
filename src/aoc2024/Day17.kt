@@ -1,7 +1,5 @@
 package aoc2024
 
-import readInput
-
 
 fun main() {
 
