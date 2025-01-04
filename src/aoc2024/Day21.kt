@@ -70,10 +70,42 @@ fun main() {
 
     val memoizedKeyPadKeyPadDirections = mutableMapOf<Pair<Char, Char>, List<String>>()
 
+    fun distance(code: String): Long {
+        var distance = 0L
+        for (i in 1 until code.length) {
+            if (code[i-1] != code[i]) {
+                distance += memoizedKeyPadKeyPadDirections[Pair(code[i-1], code[i])]!!.first().length
+            }
+        }
+        return distance
+    }
+
     fun trimResults(results: MutableList<String>) {
-        results.sortBy { numChanges(it) }
-        val minResults = numChanges(results.first())
-        results.removeIf { numChanges(it) > minResults }
+        results.sortBy { distance(it) }
+        val minResults = distance(results.first())
+        results.removeIf { distance(it) > minResults }
+    }
+
+    fun combineResults(result: MutableList<String>, paths: List<String>): MutableList<String> {
+        if (result.isEmpty()) {
+            result.addAll(paths)
+        } else if (paths.size == 1) {
+            for (i in result.indices) {
+                result[i] = (result[i] + paths[0])
+            }
+        } else {
+            val sizeBeforeAdding = result.size
+            for (j in 1 until paths.size) {
+                for (i in 0 until sizeBeforeAdding) {
+                    result.add(result[i] + paths[j])
+                }
+            }
+            for (i in 0 until sizeBeforeAdding) {
+                result[i] = (result[i] + paths[0])
+            }
+        }
+        trimResults(result)
+        return result
     }
 
     fun keyPadKeyPadDirections(code: String): List<String> {
@@ -82,32 +114,25 @@ fun main() {
 
         for (next in code) {
             val paths = memoizedKeyPadKeyPadDirections[Pair(prev, next)]!!
-
-            if (result.isEmpty()) {
-                result = paths.toMutableList()
-                prev = next
-                continue
-            }
-
-            if (paths.size == 1) {
-                for (i in result.indices) {
-                    result[i] = (result[i] + paths[0])
-                }
-            } else {
-                val sizeBeforeAdding = result.size
-                for (j in 1 until paths.size) {
-                    for (i in 0 until sizeBeforeAdding) {
-                        result.add(result[i] + paths[j])
-                    }
-                }
-                for (i in 0 until sizeBeforeAdding) {
-                    result[i] = (result[i] + paths[0])
-                }
-            }
-            trimResults(result)
+            result = combineResults(result, paths)
             prev = next
         }
 
+        return result.toSet().toList()
+    }
+
+    val possibleCombinations = mutableMapOf<String, List<String>>()
+    fun keyPadKeyPadDirectionsCombinations(code: String): List<String> {
+        var result = mutableListOf<String>()
+        val splitted = code.split('A')
+        for (combination in splitted) {
+            if (!possibleCombinations.containsKey(combination + 'A')) {
+                val combinations = keyPadKeyPadDirections(combination + 'A')
+                possibleCombinations[combination + 'A'] = combinations
+            }
+            val paths = possibleCombinations[combination + 'A']!!
+            result = combineResults(result, paths)
+        }
         return result.toSet().toList()
     }
 
@@ -127,13 +152,15 @@ fun main() {
     }
 
     fun finalDirections(code: String): String {
-        val possibleRobot1Directions = keyPadDirections(code).sortedBy { numChanges(it) }
-        val minChangesRobot1 = numChanges(possibleRobot1Directions.first())
-        val possibleRobot2Directions = possibleRobot1Directions.filter { numChanges(it) == minChangesRobot1 } .map {
+        var possibleRobot1Directions = keyPadDirections(code).sortedBy { distance(it) }
+        val minChangesRobot1 = distance(possibleRobot1Directions.first())
+        possibleRobot1Directions = possibleRobot1Directions.filter { distance(it) == minChangesRobot1 }
+        var possibleRobot2Directions = possibleRobot1Directions.map {
             keyPadKeyPadDirections(it)
-        }.flatten().sortedBy { numChanges(it) }
-        val minChangesRobot2 = numChanges(possibleRobot2Directions.first())
-        val possibleFinalDirections = possibleRobot2Directions.filter { numChanges(it) == minChangesRobot2 }.map {
+        }.flatten().sortedBy { distance(it) }
+        val minChangesRobot2 = distance(possibleRobot2Directions.first())
+        possibleRobot2Directions = possibleRobot2Directions.filter { distance(it) == minChangesRobot2 }
+        val possibleFinalDirections = possibleRobot2Directions.map {
             keyPadKeyPadDirections(it)
         }.flatten()
         return possibleFinalDirections.minBy { it.length }
@@ -144,15 +171,15 @@ fun main() {
     }
 
     fun secondHistorianDirections(code: String): String {
-        val possibleRobot1Directions = keyPadDirections(code).sortedBy { numChanges(it) }
-        val minChangesKeyPad = numChanges(possibleRobot1Directions.first())
-        var possibleDirections = possibleRobot1Directions.filter { numChanges(it) == minChangesKeyPad }
+        val possibleRobot1Directions = keyPadDirections(code).sortedBy { distance(it) }
+        val minChangesKeyPad = distance(possibleRobot1Directions.first())
+        var possibleDirections = possibleRobot1Directions.filter { distance(it) == minChangesKeyPad }
         for (i in 0 .. 25) {
             possibleDirections = possibleDirections.map {
-                keyPadKeyPadDirections(it)
-            }.flatten().sortedBy { numChanges(it) }
-            val minChanges = numChanges(possibleDirections.first())
-            possibleDirections = possibleDirections.filter { numChanges(it) == minChanges }
+                keyPadKeyPadDirectionsCombinations(it)
+            }.flatten().sortedBy { distance(it) }
+            val minChanges = distance(possibleDirections.first())
+            possibleDirections = possibleDirections.filter { distance(it) == minChanges }
             println(possibleDirections[0])
         }
         return possibleDirections.minBy { it.length }
@@ -180,11 +207,11 @@ fun main() {
 
 
 //    println(keyPadDirections("029A"))
-//    memoizeAllKeyPadDirections()
+    memoizeAllKeyPadDirections()
 //    println(keyPadKeyPadDirections(keyPadDirections("029A")[0]))
 //    println(keyPadKeyPadDirections(keyPadDirections("029A")[1]))
 //    println(keyPadKeyPadDirections(keyPadDirections("029A")[2]))
 //    println(complexity(finalDirections("029A"), "029A"))
     println(part1(readInput("aoc2024/Day21")))
-//    println(part2(readInput("aoc2024/Day21")))
+    println(part2(readInput("aoc2024/Day21")))
 }
