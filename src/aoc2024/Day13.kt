@@ -60,32 +60,22 @@ fun main() {
             val b = parseButtonB(input.get(i * 4 + 1))
             val prize = parsePrize(input.get(i * 4 + 2))
             val actualPrize = Pair(prize.first + 10000000000000, prize.second + 10000000000000)
+            //val actualPrize = prize
 
             var minCost = Long.MAX_VALUE
-            for (j in 0 .. 1000) {
+            for (j in 0 .. 1000000000) {
                 val numX = actualPrize.first / b.first
                 val numY = actualPrize.second / b.second
-                val num = min(numX, numY) - j
-                val restX = actualPrize.first - num * b.first
-                val restY = actualPrize.second - num * b.second
-
-                val costRest = cost(a, b, Pair(restX, restY))
-
-                if (costRest != 0L) {
-                    minCost = min(minCost, costRest + num)
-                }
-            }
-            for (j in 0 .. 1000) {
-                val numX = actualPrize.first / a.first
-                val numY = actualPrize.second / a.second
-                val num = min(numX, numY) - j
-                val restX = actualPrize.first - num * a.first
-                val restY = actualPrize.second - num * a.second
-
-                val costRest = cost(a, b, Pair(restX, restY))
-
-                if (costRest != 0L) {
-                    minCost = min(minCost, costRest + 3*num)
+                val numBPresses = min(numX, numY) - j
+                if (numBPresses < 0) break
+                // numBPresses (b.first - b.second) + numAPresses (a.first - a.second) = (actualPrize.first - actualPrize.second)
+                val restX = actualPrize.first - numBPresses * b.first
+                val restY = actualPrize.second - numBPresses * b.second
+                if ((restX % a.first) == 0L && (restY % a.second) == 0L &&
+                    (restX / a.first) == (restY / a.second)
+                ) {
+                    val numAPresses = (actualPrize.first - numBPresses * b.first) / a.first
+                    minCost = (3 * numAPresses) + numBPresses
                 }
             }
             if (minCost != Long.MAX_VALUE) {
