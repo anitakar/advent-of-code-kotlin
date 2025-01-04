@@ -42,10 +42,47 @@ fun main() {
         return 0
     }
 
+    fun next3Bits(program: List<Long>, expected: Long, candidate: Long, numIters: Int = 7): List<Long> {
+        val candidates = mutableListOf<Long>()
+        for (i in 0 .. numIters) {
+            val A = candidate + i
+            val computer = ComputerDay17(A, 0, 0, 0)
+            var result: Long? = null
+            while (result == null) {
+                result = computer.nextOp(program)
+                if (result == expected) candidates.add(A)
+            }
+        }
+        return candidates
+    }
+
+    fun part2(program: List<Long>): Long {
+        val candidates = mutableListOf(1L)
+        for (i in program.size - 1 downTo 0) {
+            val elem = program[i]
+            val nextCandidates = mutableListOf<Long>()
+            for (A in candidates) {
+                val nextA = next3Bits(program, elem, A)
+                nextCandidates.addAll(nextA)
+            }
+            candidates.clear()
+            candidates.addAll(nextCandidates.map { it shl 3 })
+        }
+        val finalCandidates = candidates.map { it shr 3 }
+        val checkedCandidates = mutableListOf<Long>()
+        for (candidate in finalCandidates) {
+            val computer = ComputerDay17(candidate, 0, 0, 0)
+            val result = computer.calculate(program)
+            if (result == program) {
+                checkedCandidates.add(candidate)
+            }
+        }
+        return checkedCandidates.min()
+    }
 
 
     println(part1Test())
     println(part1())
     println(part2Test(listOf(0,3,5,4,3,0)))
-    println(part2Test(listOf(2,4,1,7,7,5,0,3,4,0,1,7,5,5,3,0)))
+    println(part2(listOf(2,4,1,7,7,5,0,3,4,0,1,7,5,5,3,0)))
 }
